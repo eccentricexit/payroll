@@ -1,5 +1,5 @@
 {
-  "name": "react-box",
+  "name": "aragon-payroll",
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
@@ -51,7 +51,8 @@
   "dependencies": {
     "dotenv": "^2.0.0",
     "react": "^15.4.2",
-    "react-dom": "^15.4.2"
+    "react-dom": "^15.4.2",
+    "zeppelin-solidity": "1.5.0"
   },
   "scripts": {
     "start": "node scripts/start.js",
@@ -97,5 +98,12 @@
   },
   "eslintConfig": {
     "extends": "react-app"
-  }
+  },
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
 }
