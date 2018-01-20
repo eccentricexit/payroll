@@ -75,13 +75,13 @@ contract Payroll is PayrollInterface, Ownable{
     addressToEmployeeId[e.accountAddress] = 0;
     employeeIdToAddress[employeeId] = 0;
 
-    address[] memory empty;
-    Employee memory test = Employee({
+    address[] memory emptyArr;
+    Employee memory emptyStruct = Employee({
       accountAddress:0,
-      allowedTokens:empty,
+      allowedTokens:emptyArr,
       yearlyUSDSalary:0
     });
-    employeeIdToEmployee[employeeId] = test;
+    employeeIdToEmployee[employeeId] = emptyStruct;
   }
 
   // modifiers

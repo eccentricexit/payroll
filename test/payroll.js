@@ -69,19 +69,27 @@ contract('Payroll', function(accounts) {
   it("should allow owner to remove employees",function(){
     var accountAddress = accounts[1];
     var tokenAddresses = [accounts[8],accounts[9]];
-    var initialYearlyUSDSalary = 100000;
+    var salariesSummationBefore;
+    var salariesSummationAfter;
 
     return Payroll.deployed().then(function(instance) {
       contractInstance = instance;
+      return contractInstance.salariesSummation.call();
+    }).then(function(salariesSummation){
+      salariesSummationBefore = salariesSummation;
       return contractInstance.getEmployee.call(1);
     }).then(function(employee){
-      assert.equal(accountAddress,employee[0],"Should return employee address");
+      assert.equal(accountAddress,employee[0],"Should return employee address.");
       return contractInstance.removeEmployee(1);
     }).then(function(){
       return contractInstance.getEmployeeCount.call();
     }).then(function(employeeCount){
       employeeCount = employeeCount.toNumber();
       assert.equal(employeeCount,0,"Should be zero.")
+      return contractInstance.salariesSummation.call();
+    }).then(function(salariesSummation){
+      salariesSummationAfter = salariesSummation;
+      assert.isBelow(salariesSummationAfter,salariesSummationBefore,"Should be less than before removal.");
       return contractInstance.getEmployee.call(1);
     }).then(function(employee){
       assert.equal(employee[0],0,"Should not return employee address.");
