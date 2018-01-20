@@ -8,7 +8,7 @@ contract Payroll is PayrollInterface, Ownable{
 
   enum State { Unlocked, Locked }
 
-  State state;
+  State public state;
   address public owner;
   uint256 public lastEmployeeId;
   uint256 public employeeCount;
@@ -32,7 +32,9 @@ contract Payroll is PayrollInterface, Ownable{
   function addEmployee(
     address _accountAddress,
     address[] _allowedTokens,
-    uint256 _initialYearlyUSDSalary) public onlyOwner() employeeNotExists(_accountAddress){
+    uint256 _initialYearlyUSDSalary) public
+    onlyOwner()
+    employeeNotExists(_accountAddress){
 
     Employee memory e = Employee({
       accountAddress:_accountAddress,
@@ -60,6 +62,10 @@ contract Payroll is PayrollInterface, Ownable{
     return (e.accountAddress,e.allowedTokens,e.yearlyUSDSalary);
   }
 
+  function getSalariesSummation() constant public returns (uint256){
+    return salariesSummation;
+  }
+
   function setEmployeeSalary(uint256 employeeId, uint256 yearlyUSDSalary) public onlyOwner() employeeExists(employeeId){
     Employee storage e = employeeIdToEmployee[employeeId];
     salariesSummation = SafeMath.sub(salariesSummation,e.yearlyUSDSalary);
@@ -84,6 +90,15 @@ contract Payroll is PayrollInterface, Ownable{
     employeeIdToEmployee[employeeId] = emptyStruct;
   }
 
+  function scapeHatch() public onlyOwner(){
+    state = State.Locked;
+    //msg.sender.transfer(this.balance);
+  }
+
+  function unlock() public onlyOwner(){
+    state = State.Unlocked;
+  }
+
   // modifiers
   modifier employeeExists(uint256 employeeId){
     Employee storage e = employeeIdToEmployee[employeeId];
@@ -101,6 +116,13 @@ contract Payroll is PayrollInterface, Ownable{
     _;
   }
 
+  modifier unlocked(address employeeAddress){
+    if(state==State.Locked){
+       revert();
+    }
+    _;
+  }
+
 
   /* OWNER ONLY */
   //function addEmployee(address accountAddress, address[] allowedTokens, uint256 initialYearlyUSDSalary) public {}
@@ -108,7 +130,7 @@ contract Payroll is PayrollInterface, Ownable{
   //function removeEmployee(uint256 employeeId) public {}
 
   function addFunds() payable public {}
-  function scapeHatch() public {}
+  //function scapeHatch() public {}
   //function addTokenFunds()? // Use approveAndCall or ERC223 tokenFallback
 
   //function getEmployeeCount() constant public returns (uint256){}
