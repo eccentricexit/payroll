@@ -1,16 +1,18 @@
 pragma solidity ^0.4.4;
 
-import "./interfaces/PayrollInterface.sol";
+import './interfaces/PayrollInterface.sol';
 import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
+import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 
 contract Payroll is PayrollInterface, Ownable{
 
   enum State { Unlocked, Locked }
 
-  address public owner;
   State state;
-  uint256 lastEmployeeId;
-  uint256 employeeCount;
+  address public owner;
+  uint256 public lastEmployeeId;
+  uint256 public employeeCount;
+  uint256 public salariesSummation;
 
   mapping(address=>uint) public addressToEmployeeId;
   mapping(uint=>address) public employeeIdToAddress;
@@ -35,7 +37,7 @@ contract Payroll is PayrollInterface, Ownable{
     Employee memory e = Employee({
       accountAddress:_accountAddress,
       allowedTokens:_allowedTokens,
-      yearlyUSDSalary:_initialYearlyUSDSalary
+      yearlyUSDSalary:0
     });
 
     lastEmployeeId++;
@@ -45,29 +47,34 @@ contract Payroll is PayrollInterface, Ownable{
     addressToEmployeeId[_accountAddress] = employeeId;
     employeeIdToAddress[employeeId] = _accountAddress;
     employeeIdToEmployee[employeeId] = e;
+
+    setEmployeeSalary(employeeId,_initialYearlyUSDSalary);
   }
 
   function getEmployeeCount() constant public returns (uint256){
     return employeeCount;
   }
 
-  function getEmployee(uint256 employeeId) constant public returns (address,address[],uint256){
+  function getEmployee(uint256 employeeId) constant public returns (address,address[],uint256) {
     Employee storage e = employeeIdToEmployee[employeeId];
     return (e.accountAddress,e.allowedTokens,e.yearlyUSDSalary);
   }
 
-  function setEmployeeSalary(uint256 employeeId, uint256 yearlyUSDSalary) public onlyOwner(){
+  function setEmployeeSalary(uint256 employeeId, uint256 yearlyUSDSalary) public onlyOwner() employeeExists(employeeId){
     Employee storage e = employeeIdToEmployee[employeeId];
+    salariesSummation = SafeMath.sub(salariesSummation,e.yearlyUSDSalary);
     e.yearlyUSDSalary = yearlyUSDSalary;
+    salariesSummation = SafeMath.add(salariesSummation,e.yearlyUSDSalary);
   }
 
-  function removeEmployee(uint256 employeeId) public /*onlyOwner()*/{
+  function removeEmployee(uint256 employeeId) public onlyOwner() employeeExists(employeeId){
     Employee storage e = employeeIdToEmployee[employeeId];
+    setEmployeeSalary(employeeId,0);
 
     employeeCount--;
     addressToEmployeeId[e.accountAddress] = 0;
     employeeIdToAddress[employeeId] = 0;
-    
+
     address[] memory empty;
     Employee memory test = Employee({
       accountAddress:0,
@@ -75,6 +82,24 @@ contract Payroll is PayrollInterface, Ownable{
       yearlyUSDSalary:0
     });
     employeeIdToEmployee[employeeId] = test;
+  }
+
+  // modifiers
+
+  modifier employeeExists(uint256 employeeId){
+    Employee storage e = employeeIdToEmployee[employeeId];
+    if(e.accountAddress==0){
+       revert();
+    }
+    _;
+  }
+
+  modifier employeeNotExists(uint256 employeeId){
+    Employee storage e = employeeIdToEmployee[employeeId];
+    if(e.accountAddress!=0){
+       revert();
+    }
+    _;
   }
 
 
