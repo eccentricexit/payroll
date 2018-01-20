@@ -111,6 +111,33 @@
       "type": "function"
     },
     {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "employeeId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getEmployee",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        },
+        {
+          "name": "",
+          "type": "address[]"
+        },
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "constant": false,
       "inputs": [
         {
@@ -165,14 +192,14 @@
   "deployedBytecode": "0x",
   "sourceMap": "",
   "deployedSourceMap": "",
-  "source": "pragma solidity ^0.4.4;\n\n// For the sake of simplicity lets assume USD is a ERC20 token\n// Also lets assume we can 100% trust the exchange rate oracle\ncontract PayrollInterface {\n  /* OWNER ONLY */\n  function addEmployee(address accountAddress, address[] allowedTokens, uint256 initialYearlyUSDSalary) public;\n  function setEmployeeSalary(uint256 employeeId, uint256 yearlyUSDSalary) public;\n  function removeEmployee(uint256 employeeId) public;\n\n  function addFunds() payable public;\n  function scapeHatch() public;\n  // function addTokenFunds()? // Use approveAndCall or ERC223 tokenFallback\n\n  function getEmployeeCount() constant public returns (uint256);\n  //function getEmployee(uint256 employeeId) constant public returns (address); // Return all important info too\n\n  function calculatePayrollBurnrate() constant public returns (uint256); // Monthly usd amount spent in salaries\n  function calculatePayrollRunway() constant public returns (uint256); // Days until the contract can run out of funds\n\n  /* EMPLOYEE ONLY */\n  function determineAllocation(address[] tokens, uint256[] distribution) public; // only callable once every 6 months\n  function payday() public; // only callable once a month\n\n  /* ORACLE ONLY */\n  function setExchangeRate(address token, uint256 usdExchangeRate) public; // uses decimals from token\n}\n",
+  "source": "pragma solidity ^0.4.4;\n\n// For the sake of simplicity lets assume USD is a ERC20 token\n// Also lets assume we can 100% trust the exchange rate oracle\ncontract PayrollInterface {\n  /* OWNER ONLY */\n  function addEmployee(address accountAddress, address[] allowedTokens, uint256 initialYearlyUSDSalary) public;\n  function setEmployeeSalary(uint256 employeeId, uint256 yearlyUSDSalary) public;\n  function removeEmployee(uint256 employeeId) public;\n\n  function addFunds() payable public;\n  function scapeHatch() public;\n  // function addTokenFunds()? // Use approveAndCall or ERC223 tokenFallback\n\n  function getEmployeeCount() constant public returns (uint256);\n  function getEmployee(uint256 employeeId) constant public returns (address, address[],uint256); // Return all important info too. Could be changed to return struct directly, but web3 doesn't support it yet. https://github.com/ethereum/web3.js/issues/1241\n\n  function calculatePayrollBurnrate() constant public returns (uint256); // Monthly usd amount spent in salaries\n  function calculatePayrollRunway() constant public returns (uint256); // Days until the contract can run out of funds\n\n  /* EMPLOYEE ONLY */\n  function determineAllocation(address[] tokens, uint256[] distribution) public; // only callable once every 6 months\n  function payday() public; // only callable once a month\n\n  /* ORACLE ONLY */\n  function setExchangeRate(address token, uint256 usdExchangeRate) public; // uses decimals from token\n}\n",
   "sourcePath": "/home/rigel/Projects/aragon-payroll/contracts/interfaces/PayrollInterface.sol",
   "ast": {
     "attributes": {
       "absolutePath": "/home/rigel/Projects/aragon-payroll/contracts/interfaces/PayrollInterface.sol",
       "exportedSymbols": {
         "PayrollInterface": [
-          249
+          308
         ]
       }
     },
@@ -186,7 +213,7 @@
             ".4"
           ]
         },
-        "id": 186,
+        "id": 233,
         "name": "PragmaDirective",
         "src": "0:23:1"
       },
@@ -202,10 +229,10 @@
           "documentation": null,
           "fullyImplemented": false,
           "linearizedBaseContracts": [
-            249
+            308
           ],
           "name": "PayrollInterface",
-          "scope": 250
+          "scope": 309
         },
         "children": [
           {
@@ -219,7 +246,7 @@
               ],
               "name": "addEmployee",
               "payable": false,
-              "scope": 249,
+              "scope": 308,
               "stateMutability": "nonpayable",
               "superFunction": null,
               "visibility": "public"
@@ -231,7 +258,7 @@
                     "attributes": {
                       "constant": false,
                       "name": "accountAddress",
-                      "scope": 196,
+                      "scope": 243,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "address",
@@ -244,12 +271,12 @@
                           "name": "address",
                           "type": "address"
                         },
-                        "id": 187,
+                        "id": 234,
                         "name": "ElementaryTypeName",
                         "src": "221:7:1"
                       }
                     ],
-                    "id": 188,
+                    "id": 235,
                     "name": "VariableDeclaration",
                     "src": "221:22:1"
                   },
@@ -257,7 +284,7 @@
                     "attributes": {
                       "constant": false,
                       "name": "allowedTokens",
-                      "scope": 196,
+                      "scope": 243,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "address[] memory",
@@ -276,17 +303,17 @@
                               "name": "address",
                               "type": "address"
                             },
-                            "id": 189,
+                            "id": 236,
                             "name": "ElementaryTypeName",
                             "src": "245:7:1"
                           }
                         ],
-                        "id": 190,
+                        "id": 237,
                         "name": "ArrayTypeName",
                         "src": "245:9:1"
                       }
                     ],
-                    "id": 191,
+                    "id": 238,
                     "name": "VariableDeclaration",
                     "src": "245:23:1"
                   },
@@ -294,7 +321,7 @@
                     "attributes": {
                       "constant": false,
                       "name": "initialYearlyUSDSalary",
-                      "scope": 196,
+                      "scope": 243,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "uint256",
@@ -307,17 +334,17 @@
                           "name": "uint256",
                           "type": "uint256"
                         },
-                        "id": 192,
+                        "id": 239,
                         "name": "ElementaryTypeName",
                         "src": "270:7:1"
                       }
                     ],
-                    "id": 193,
+                    "id": 240,
                     "name": "VariableDeclaration",
                     "src": "270:30:1"
                   }
                 ],
-                "id": 194,
+                "id": 241,
                 "name": "ParameterList",
                 "src": "220:81:1"
               },
@@ -328,12 +355,12 @@
                   ]
                 },
                 "children": [],
-                "id": 195,
+                "id": 242,
                 "name": "ParameterList",
                 "src": "308:0:1"
               }
             ],
-            "id": 196,
+            "id": 243,
             "name": "FunctionDefinition",
             "src": "200:109:1"
           },
@@ -348,7 +375,7 @@
               ],
               "name": "setEmployeeSalary",
               "payable": false,
-              "scope": 249,
+              "scope": 308,
               "stateMutability": "nonpayable",
               "superFunction": null,
               "visibility": "public"
@@ -360,7 +387,7 @@
                     "attributes": {
                       "constant": false,
                       "name": "employeeId",
-                      "scope": 203,
+                      "scope": 250,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "uint256",
@@ -373,12 +400,12 @@
                           "name": "uint256",
                           "type": "uint256"
                         },
-                        "id": 197,
+                        "id": 244,
                         "name": "ElementaryTypeName",
                         "src": "339:7:1"
                       }
                     ],
-                    "id": 198,
+                    "id": 245,
                     "name": "VariableDeclaration",
                     "src": "339:18:1"
                   },
@@ -386,7 +413,7 @@
                     "attributes": {
                       "constant": false,
                       "name": "yearlyUSDSalary",
-                      "scope": 203,
+                      "scope": 250,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "uint256",
@@ -399,17 +426,17 @@
                           "name": "uint256",
                           "type": "uint256"
                         },
-                        "id": 199,
+                        "id": 246,
                         "name": "ElementaryTypeName",
                         "src": "359:7:1"
                       }
                     ],
-                    "id": 200,
+                    "id": 247,
                     "name": "VariableDeclaration",
                     "src": "359:23:1"
                   }
                 ],
-                "id": 201,
+                "id": 248,
                 "name": "ParameterList",
                 "src": "338:45:1"
               },
@@ -420,12 +447,12 @@
                   ]
                 },
                 "children": [],
-                "id": 202,
+                "id": 249,
                 "name": "ParameterList",
                 "src": "390:0:1"
               }
             ],
-            "id": 203,
+            "id": 250,
             "name": "FunctionDefinition",
             "src": "312:79:1"
           },
@@ -440,7 +467,7 @@
               ],
               "name": "removeEmployee",
               "payable": false,
-              "scope": 249,
+              "scope": 308,
               "stateMutability": "nonpayable",
               "superFunction": null,
               "visibility": "public"
@@ -452,7 +479,7 @@
                     "attributes": {
                       "constant": false,
                       "name": "employeeId",
-                      "scope": 208,
+                      "scope": 255,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "uint256",
@@ -465,17 +492,17 @@
                           "name": "uint256",
                           "type": "uint256"
                         },
-                        "id": 204,
+                        "id": 251,
                         "name": "ElementaryTypeName",
                         "src": "418:7:1"
                       }
                     ],
-                    "id": 205,
+                    "id": 252,
                     "name": "VariableDeclaration",
                     "src": "418:18:1"
                   }
                 ],
-                "id": 206,
+                "id": 253,
                 "name": "ParameterList",
                 "src": "417:20:1"
               },
@@ -486,12 +513,12 @@
                   ]
                 },
                 "children": [],
-                "id": 207,
+                "id": 254,
                 "name": "ParameterList",
                 "src": "444:0:1"
               }
             ],
-            "id": 208,
+            "id": 255,
             "name": "FunctionDefinition",
             "src": "394:51:1"
           },
@@ -506,7 +533,7 @@
               ],
               "name": "addFunds",
               "payable": true,
-              "scope": 249,
+              "scope": 308,
               "stateMutability": "payable",
               "superFunction": null,
               "visibility": "public"
@@ -519,7 +546,7 @@
                   ]
                 },
                 "children": [],
-                "id": 209,
+                "id": 256,
                 "name": "ParameterList",
                 "src": "466:2:1"
               },
@@ -530,12 +557,12 @@
                   ]
                 },
                 "children": [],
-                "id": 210,
+                "id": 257,
                 "name": "ParameterList",
                 "src": "483:0:1"
               }
             ],
-            "id": 211,
+            "id": 258,
             "name": "FunctionDefinition",
             "src": "449:35:1"
           },
@@ -550,7 +577,7 @@
               ],
               "name": "scapeHatch",
               "payable": false,
-              "scope": 249,
+              "scope": 308,
               "stateMutability": "nonpayable",
               "superFunction": null,
               "visibility": "public"
@@ -563,7 +590,7 @@
                   ]
                 },
                 "children": [],
-                "id": 212,
+                "id": 259,
                 "name": "ParameterList",
                 "src": "506:2:1"
               },
@@ -574,12 +601,12 @@
                   ]
                 },
                 "children": [],
-                "id": 213,
+                "id": 260,
                 "name": "ParameterList",
                 "src": "515:0:1"
               }
             ],
-            "id": 214,
+            "id": 261,
             "name": "FunctionDefinition",
             "src": "487:29:1"
           },
@@ -594,7 +621,7 @@
               ],
               "name": "getEmployeeCount",
               "payable": false,
-              "scope": 249,
+              "scope": 308,
               "stateMutability": "view",
               "superFunction": null,
               "visibility": "public"
@@ -607,7 +634,7 @@
                   ]
                 },
                 "children": [],
-                "id": 215,
+                "id": 262,
                 "name": "ParameterList",
                 "src": "622:2:1"
               },
@@ -617,7 +644,7 @@
                     "attributes": {
                       "constant": false,
                       "name": "",
-                      "scope": 219,
+                      "scope": 266,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "uint256",
@@ -630,22 +657,22 @@
                           "name": "uint256",
                           "type": "uint256"
                         },
-                        "id": 216,
+                        "id": 263,
                         "name": "ElementaryTypeName",
                         "src": "650:7:1"
                       }
                     ],
-                    "id": 217,
+                    "id": 264,
                     "name": "VariableDeclaration",
                     "src": "650:7:1"
                   }
                 ],
-                "id": 218,
+                "id": 265,
                 "name": "ParameterList",
                 "src": "649:9:1"
               }
             ],
-            "id": 219,
+            "id": 266,
             "name": "FunctionDefinition",
             "src": "597:62:1"
           },
@@ -658,32 +685,21 @@
               "modifiers": [
                 null
               ],
-              "name": "calculatePayrollBurnrate",
+              "name": "getEmployee",
               "payable": false,
-              "scope": 249,
+              "scope": 308,
               "stateMutability": "view",
               "superFunction": null,
               "visibility": "public"
             },
             "children": [
               {
-                "attributes": {
-                  "parameters": [
-                    null
-                  ]
-                },
-                "children": [],
-                "id": 220,
-                "name": "ParameterList",
-                "src": "809:2:1"
-              },
-              {
                 "children": [
                   {
                     "attributes": {
                       "constant": false,
-                      "name": "",
-                      "scope": 224,
+                      "name": "employeeId",
+                      "scope": 278,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "uint256",
@@ -696,52 +712,19 @@
                           "name": "uint256",
                           "type": "uint256"
                         },
-                        "id": 221,
+                        "id": 267,
                         "name": "ElementaryTypeName",
-                        "src": "837:7:1"
+                        "src": "683:7:1"
                       }
                     ],
-                    "id": 222,
+                    "id": 268,
                     "name": "VariableDeclaration",
-                    "src": "837:7:1"
+                    "src": "683:18:1"
                   }
                 ],
-                "id": 223,
+                "id": 269,
                 "name": "ParameterList",
-                "src": "836:9:1"
-              }
-            ],
-            "id": 224,
-            "name": "FunctionDefinition",
-            "src": "776:70:1"
-          },
-          {
-            "attributes": {
-              "body": null,
-              "constant": true,
-              "implemented": false,
-              "isConstructor": false,
-              "modifiers": [
-                null
-              ],
-              "name": "calculatePayrollRunway",
-              "payable": false,
-              "scope": 249,
-              "stateMutability": "view",
-              "superFunction": null,
-              "visibility": "public"
-            },
-            "children": [
-              {
-                "attributes": {
-                  "parameters": [
-                    null
-                  ]
-                },
-                "children": [],
-                "id": 225,
-                "name": "ParameterList",
-                "src": "920:2:1"
+                "src": "682:20:1"
               },
               {
                 "children": [
@@ -749,62 +732,33 @@
                     "attributes": {
                       "constant": false,
                       "name": "",
-                      "scope": 229,
+                      "scope": 278,
                       "stateVariable": false,
                       "storageLocation": "default",
-                      "type": "uint256",
+                      "type": "address",
                       "value": null,
                       "visibility": "internal"
                     },
                     "children": [
                       {
                         "attributes": {
-                          "name": "uint256",
-                          "type": "uint256"
+                          "name": "address",
+                          "type": "address"
                         },
-                        "id": 226,
+                        "id": 270,
                         "name": "ElementaryTypeName",
-                        "src": "948:7:1"
+                        "src": "728:7:1"
                       }
                     ],
-                    "id": 227,
+                    "id": 271,
                     "name": "VariableDeclaration",
-                    "src": "948:7:1"
-                  }
-                ],
-                "id": 228,
-                "name": "ParameterList",
-                "src": "947:9:1"
-              }
-            ],
-            "id": 229,
-            "name": "FunctionDefinition",
-            "src": "889:68:1"
-          },
-          {
-            "attributes": {
-              "body": null,
-              "constant": false,
-              "implemented": false,
-              "isConstructor": false,
-              "modifiers": [
-                null
-              ],
-              "name": "determineAllocation",
-              "payable": false,
-              "scope": 249,
-              "stateMutability": "nonpayable",
-              "superFunction": null,
-              "visibility": "public"
-            },
-            "children": [
-              {
-                "children": [
+                    "src": "728:7:1"
+                  },
                   {
                     "attributes": {
                       "constant": false,
-                      "name": "tokens",
-                      "scope": 238,
+                      "name": "",
+                      "scope": 278,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "address[] memory",
@@ -823,25 +777,249 @@
                               "name": "address",
                               "type": "address"
                             },
-                            "id": 230,
+                            "id": 272,
                             "name": "ElementaryTypeName",
-                            "src": "1060:7:1"
+                            "src": "737:7:1"
                           }
                         ],
-                        "id": 231,
+                        "id": 273,
                         "name": "ArrayTypeName",
-                        "src": "1060:9:1"
+                        "src": "737:9:1"
                       }
                     ],
-                    "id": 232,
+                    "id": 274,
                     "name": "VariableDeclaration",
-                    "src": "1060:16:1"
+                    "src": "737:9:1"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "",
+                      "scope": 278,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 275,
+                        "name": "ElementaryTypeName",
+                        "src": "747:7:1"
+                      }
+                    ],
+                    "id": 276,
+                    "name": "VariableDeclaration",
+                    "src": "747:7:1"
+                  }
+                ],
+                "id": 277,
+                "name": "ParameterList",
+                "src": "727:28:1"
+              }
+            ],
+            "id": 278,
+            "name": "FunctionDefinition",
+            "src": "662:94:1"
+          },
+          {
+            "attributes": {
+              "body": null,
+              "constant": true,
+              "implemented": false,
+              "isConstructor": false,
+              "modifiers": [
+                null
+              ],
+              "name": "calculatePayrollBurnrate",
+              "payable": false,
+              "scope": 308,
+              "stateMutability": "view",
+              "superFunction": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 279,
+                "name": "ParameterList",
+                "src": "952:2:1"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "",
+                      "scope": 283,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 280,
+                        "name": "ElementaryTypeName",
+                        "src": "980:7:1"
+                      }
+                    ],
+                    "id": 281,
+                    "name": "VariableDeclaration",
+                    "src": "980:7:1"
+                  }
+                ],
+                "id": 282,
+                "name": "ParameterList",
+                "src": "979:9:1"
+              }
+            ],
+            "id": 283,
+            "name": "FunctionDefinition",
+            "src": "919:70:1"
+          },
+          {
+            "attributes": {
+              "body": null,
+              "constant": true,
+              "implemented": false,
+              "isConstructor": false,
+              "modifiers": [
+                null
+              ],
+              "name": "calculatePayrollRunway",
+              "payable": false,
+              "scope": 308,
+              "stateMutability": "view",
+              "superFunction": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 284,
+                "name": "ParameterList",
+                "src": "1063:2:1"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "",
+                      "scope": 288,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 285,
+                        "name": "ElementaryTypeName",
+                        "src": "1091:7:1"
+                      }
+                    ],
+                    "id": 286,
+                    "name": "VariableDeclaration",
+                    "src": "1091:7:1"
+                  }
+                ],
+                "id": 287,
+                "name": "ParameterList",
+                "src": "1090:9:1"
+              }
+            ],
+            "id": 288,
+            "name": "FunctionDefinition",
+            "src": "1032:68:1"
+          },
+          {
+            "attributes": {
+              "body": null,
+              "constant": false,
+              "implemented": false,
+              "isConstructor": false,
+              "modifiers": [
+                null
+              ],
+              "name": "determineAllocation",
+              "payable": false,
+              "scope": 308,
+              "stateMutability": "nonpayable",
+              "superFunction": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "tokens",
+                      "scope": 297,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address[] memory",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "length": null,
+                          "type": "address[] storage pointer"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "name": "address",
+                              "type": "address"
+                            },
+                            "id": 289,
+                            "name": "ElementaryTypeName",
+                            "src": "1203:7:1"
+                          }
+                        ],
+                        "id": 290,
+                        "name": "ArrayTypeName",
+                        "src": "1203:9:1"
+                      }
+                    ],
+                    "id": 291,
+                    "name": "VariableDeclaration",
+                    "src": "1203:16:1"
                   },
                   {
                     "attributes": {
                       "constant": false,
                       "name": "distribution",
-                      "scope": 238,
+                      "scope": 297,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "uint256[] memory",
@@ -860,24 +1038,24 @@
                               "name": "uint256",
                               "type": "uint256"
                             },
-                            "id": 233,
+                            "id": 292,
                             "name": "ElementaryTypeName",
-                            "src": "1078:7:1"
+                            "src": "1221:7:1"
                           }
                         ],
-                        "id": 234,
+                        "id": 293,
                         "name": "ArrayTypeName",
-                        "src": "1078:9:1"
+                        "src": "1221:9:1"
                       }
                     ],
-                    "id": 235,
+                    "id": 294,
                     "name": "VariableDeclaration",
-                    "src": "1078:22:1"
+                    "src": "1221:22:1"
                   }
                 ],
-                "id": 236,
+                "id": 295,
                 "name": "ParameterList",
-                "src": "1059:42:1"
+                "src": "1202:42:1"
               },
               {
                 "attributes": {
@@ -886,14 +1064,14 @@
                   ]
                 },
                 "children": [],
-                "id": 237,
+                "id": 296,
                 "name": "ParameterList",
-                "src": "1108:0:1"
+                "src": "1251:0:1"
               }
             ],
-            "id": 238,
+            "id": 297,
             "name": "FunctionDefinition",
-            "src": "1031:78:1"
+            "src": "1174:78:1"
           },
           {
             "attributes": {
@@ -906,7 +1084,7 @@
               ],
               "name": "payday",
               "payable": false,
-              "scope": 249,
+              "scope": 308,
               "stateMutability": "nonpayable",
               "superFunction": null,
               "visibility": "public"
@@ -919,9 +1097,9 @@
                   ]
                 },
                 "children": [],
-                "id": 239,
+                "id": 298,
                 "name": "ParameterList",
-                "src": "1164:2:1"
+                "src": "1307:2:1"
               },
               {
                 "attributes": {
@@ -930,14 +1108,14 @@
                   ]
                 },
                 "children": [],
-                "id": 240,
+                "id": 299,
                 "name": "ParameterList",
-                "src": "1173:0:1"
+                "src": "1316:0:1"
               }
             ],
-            "id": 241,
+            "id": 300,
             "name": "FunctionDefinition",
-            "src": "1149:25:1"
+            "src": "1292:25:1"
           },
           {
             "attributes": {
@@ -950,7 +1128,7 @@
               ],
               "name": "setExchangeRate",
               "payable": false,
-              "scope": 249,
+              "scope": 308,
               "stateMutability": "nonpayable",
               "superFunction": null,
               "visibility": "public"
@@ -962,7 +1140,7 @@
                     "attributes": {
                       "constant": false,
                       "name": "token",
-                      "scope": 248,
+                      "scope": 307,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "address",
@@ -975,20 +1153,20 @@
                           "name": "address",
                           "type": "address"
                         },
-                        "id": 242,
+                        "id": 301,
                         "name": "ElementaryTypeName",
-                        "src": "1253:7:1"
+                        "src": "1396:7:1"
                       }
                     ],
-                    "id": 243,
+                    "id": 302,
                     "name": "VariableDeclaration",
-                    "src": "1253:13:1"
+                    "src": "1396:13:1"
                   },
                   {
                     "attributes": {
                       "constant": false,
                       "name": "usdExchangeRate",
-                      "scope": 248,
+                      "scope": 307,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "uint256",
@@ -1001,19 +1179,19 @@
                           "name": "uint256",
                           "type": "uint256"
                         },
-                        "id": 244,
+                        "id": 303,
                         "name": "ElementaryTypeName",
-                        "src": "1268:7:1"
+                        "src": "1411:7:1"
                       }
                     ],
-                    "id": 245,
+                    "id": 304,
                     "name": "VariableDeclaration",
-                    "src": "1268:23:1"
+                    "src": "1411:23:1"
                   }
                 ],
-                "id": 246,
+                "id": 305,
                 "name": "ParameterList",
-                "src": "1252:40:1"
+                "src": "1395:40:1"
               },
               {
                 "attributes": {
@@ -1022,24 +1200,24 @@
                   ]
                 },
                 "children": [],
-                "id": 247,
+                "id": 306,
                 "name": "ParameterList",
-                "src": "1299:0:1"
+                "src": "1442:0:1"
               }
             ],
-            "id": 248,
+            "id": 307,
             "name": "FunctionDefinition",
-            "src": "1228:72:1"
+            "src": "1371:72:1"
           }
         ],
-        "id": 249,
+        "id": 308,
         "name": "ContractDefinition",
-        "src": "151:1179:1"
+        "src": "151:1322:1"
       }
     ],
-    "id": 250,
+    "id": 309,
     "name": "SourceUnit",
-    "src": "0:1331:1"
+    "src": "0:1474:1"
   },
   "compiler": {
     "name": "solc",
@@ -1047,5 +1225,5 @@
   },
   "networks": {},
   "schemaVersion": "1.0.1",
-  "updatedAt": "2018-01-19T22:40:03.891Z"
+  "updatedAt": "2018-01-20T14:27:45.585Z"
 }

@@ -55,12 +55,33 @@ contract Payroll is PayrollInterface, Ownable{
     Employee storage e = employeeIdToEmployee[employeeId];
     return (e.accountAddress,e.allowedTokens,e.yearlyUSDSalary);
   }
-  
+
+  function setEmployeeSalary(uint256 employeeId, uint256 yearlyUSDSalary) public onlyOwner(){
+    Employee storage e = employeeIdToEmployee[employeeId];
+    e.yearlyUSDSalary = yearlyUSDSalary;
+  }
+
+  function removeEmployee(uint256 employeeId) public /*onlyOwner()*/{
+    Employee storage e = employeeIdToEmployee[employeeId];
+
+    employeeCount--;
+    addressToEmployeeId[e.accountAddress] = 0;
+    employeeIdToAddress[employeeId] = 0;
+    
+    address[] memory empty;
+    Employee memory test = Employee({
+      accountAddress:0,
+      allowedTokens:empty,
+      yearlyUSDSalary:0
+    });
+    employeeIdToEmployee[employeeId] = test;
+  }
+
 
   /* OWNER ONLY */
   //function addEmployee(address accountAddress, address[] allowedTokens, uint256 initialYearlyUSDSalary) public {}
-  function setEmployeeSalary(uint256 employeeId, uint256 yearlyUSDSalary) public {}
-  function removeEmployee(uint256 employeeId) public {}
+  //function setEmployeeSalary(uint256 employeeId, uint256 yearlyUSDSalary) public {}
+  //function removeEmployee(uint256 employeeId) public {}
 
   function addFunds() payable public {}
   function scapeHatch() public {}

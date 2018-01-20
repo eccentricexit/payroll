@@ -10,6 +10,10 @@ contract('Payroll', function(accounts) {
 
     return Payroll.deployed().then(function(instance) {
       contractInstance = instance;
+      return contractInstance.getEmployeeCount();
+    }).then(function(employeeCount) {
+      assert.equal(employeeCount,0,"Employee count should be one.")
+    }).then(function() {
       return contractInstance.addEmployee(accountAddress,tokenAddresses,initialYearlyUSDSalary);
     }).then(function() {
       return contractInstance.employeeIdToAddress.call(1);
@@ -22,10 +26,56 @@ contract('Payroll', function(accounts) {
     }).then(function(employeeCount){
       assert.equal(employeeCount,1,"There should be at least an employee.");
       return contractInstance.getEmployee.call(1);
-    }).then(function(val){
-      assert.equal(val[0],accountAddress,"Should return employee address.");
-      assert.deepEqual(val[1],tokenAddresses,"Should return allowed tokens.");
-      assert.equal(val[2].toNumber(),initialYearlyUSDSalary,"Should employee salary.");
+    }).then(function(employee){
+      assert.equal(employee[0],accountAddress,"Should return employee address.");
+      assert.deepEqual(employee[1],tokenAddresses,"Should return allowed tokens.");
+      assert.equal(employee[2].toNumber(),initialYearlyUSDSalary,"Should employee salary.");
+      return contractInstance.getEmployeeCount();
+    }).then(function(employeeCount){
+      assert.equal(employeeCount,1,"Employee count should be one.")
+    });
+  });
+
+  it("should allow owner to set salary", function() {
+    var accountAddress = accounts[1];
+    var tokenAddresses = [accounts[8],accounts[9]];
+    var initialYearlyUSDSalary = 100000;
+    var newYearlyUSDSalary = 15000;
+
+    return Payroll.deployed().then(function(instance) {
+      contractInstance = instance;
+      return contractInstance.getEmployee.call(1);
+    }).then(function(employee){
+      assert.equal(employee[2].toNumber(),initialYearlyUSDSalary,"Should return initial employee salary.");
+      return contractInstance.setEmployeeSalary(1,newYearlyUSDSalary);
+    }).then(function(){
+      return contractInstance.getEmployee.call(1);
+    }).then(function(employee){
+      assert.equal(employee[2].toNumber(),newYearlyUSDSalary,"Should be new salary.")
+    });
+  });
+
+  it("should allow owner to remove employees",function(){
+    var accountAddress = accounts[1];
+    var tokenAddresses = [accounts[8],accounts[9]];
+    var initialYearlyUSDSalary = 100000;
+
+    return Payroll.deployed().then(function(instance) {
+      contractInstance = instance;
+      return contractInstance.getEmployee.call(1);
+    }).then(function(employee){
+      assert.equal(accountAddress,employee[0],"Should return employee address");
+      return contractInstance.removeEmployee(1);
+    }).then(function(){
+      return contractInstance.getEmployeeCount.call();
+    }).then(function(employeeCount){
+      employeeCount = employeeCount.toNumber();
+      assert.equal(employeeCount,0,"Should be zero.")
+      return contractInstance.getEmployee.call(1);
+    }).then(function(employee){
+      //assert.equal(employee[0],0,"Should not return employee address.");
+      //assert.deepEqual(employee[1],[],"Should return allowed tokens.");
+      //assert.equal(employee[2].toNumber(),0,"Should employee salary.");
     });
   });
 
