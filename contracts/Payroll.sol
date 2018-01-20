@@ -32,7 +32,7 @@ contract Payroll is PayrollInterface, Ownable{
   function addEmployee(
     address _accountAddress,
     address[] _allowedTokens,
-    uint256 _initialYearlyUSDSalary) public onlyOwner(){
+    uint256 _initialYearlyUSDSalary) public onlyOwner() employeeNotExists(_accountAddress){
 
     Employee memory e = Employee({
       accountAddress:_accountAddress,
@@ -85,7 +85,6 @@ contract Payroll is PayrollInterface, Ownable{
   }
 
   // modifiers
-
   modifier employeeExists(uint256 employeeId){
     Employee storage e = employeeIdToEmployee[employeeId];
     if(e.accountAddress==0){
@@ -94,9 +93,9 @@ contract Payroll is PayrollInterface, Ownable{
     _;
   }
 
-  modifier employeeNotExists(uint256 employeeId){
-    Employee storage e = employeeIdToEmployee[employeeId];
-    if(e.accountAddress!=0){
+  modifier employeeNotExists(address employeeAddress){
+    uint256 employeeId = addressToEmployeeId[employeeAddress];
+    if(employeeId!=0){
        revert();
     }
     _;
