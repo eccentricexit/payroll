@@ -1,15 +1,12 @@
 pragma solidity ^0.4.4;
 
 import './interfaces/PayrollInterface.sol';
-import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
+import 'zeppelin-solidity/contracts/lifecycle/Pausable.sol';
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 
-contract Payroll is PayrollInterface, Ownable{
+contract Payroll is PayrollInterface, Pausable{
 
-  enum State { Unlocked, Locked }
-
-  State public state;
-  address public owner;
+  address public oracle;
   uint256 public lastEmployeeId;
   uint256 public employeeCount;
   uint256 public salariesSummation;
@@ -25,17 +22,16 @@ contract Payroll is PayrollInterface, Ownable{
   }
 
   function Payroll() public {
-      owner = msg.sender;
-      state = State.Unlocked;
   }
 
   function addEmployee(
     address _accountAddress,
     address[] _allowedTokens,
     uint256 _initialYearlyUSDSalary) public
-    onlyOwner()
+    whenNotPaused
+    onlyOwner
     employeeNotExists(_accountAddress)
-    unlocked(){
+    {
 
     Employee memory e = Employee({
       accountAddress:_accountAddress,
@@ -68,9 +64,10 @@ contract Payroll is PayrollInterface, Ownable{
   }
 
   function setEmployeeSalary(uint256 employeeId, uint256 yearlyUSDSalary) public
-    onlyOwner()
+    whenNotPaused
+    onlyOwner
     employeeExists(employeeId)
-    unlocked(){
+    {
     Employee storage e = employeeIdToEmployee[employeeId];
     salariesSummation = SafeMath.sub(salariesSummation,e.yearlyUSDSalary);
     e.yearlyUSDSalary = yearlyUSDSalary;
@@ -78,9 +75,9 @@ contract Payroll is PayrollInterface, Ownable{
   }
 
   function removeEmployee(uint256 employeeId) public
-    onlyOwner()
-    employeeExists(employeeId)
-    unlocked(){
+    whenNotPaused
+    onlyOwner
+    employeeExists(employeeId){
     Employee storage e = employeeIdToEmployee[employeeId];
     setEmployeeSalary(employeeId,0);
 
@@ -97,17 +94,18 @@ contract Payroll is PayrollInterface, Ownable{
     employeeIdToEmployee[employeeId] = emptyStruct;
   }
 
-  function scapeHatch() public onlyOwner(){
-    state = State.Locked;
-  }
-
-  function unlock() public onlyOwner(){
-    state = State.Unlocked;
+  function scapeHatch() public onlyOwner whenNotPaused{
+    pause();
   }
 
   function calculatePayrollBurnrate() constant public returns (uint256){
     return SafeMath.div(salariesSummation,12);
-  } // Monthly usd amount spent in salaries
+  }
+
+
+
+
+
 
   // modifiers
   modifier employeeExists(uint256 employeeId){
@@ -126,10 +124,8 @@ contract Payroll is PayrollInterface, Ownable{
     _;
   }
 
-  modifier unlocked(){
-    if(state==State.Locked){
-       revert();
-    }
+  modifier onlyOracle(){
+    require(msg.sender == oracle);
     _;
   }
 

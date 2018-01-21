@@ -49,34 +49,12 @@ contract TestPayroll {
 
     Assert.equal(employeeCountAfter,employeeCountBefore-1,'addresses should be equal.');
     Assert.equal(salariesSummationAfter,salariesSummationBefore-yearlyUSDSalary,'salary should be equal.');
-  }
-
-  function testLock(){
-    Payroll payroll = new Payroll();
-    Payroll.State state = payroll.state();
-    if(state!=Payroll.State.Unlocked){Assert.fail("should be unlocked");}
-
-    payroll.scapeHatch();
-    state = payroll.state();
-    if(state!=Payroll.State.Locked){Assert.fail("should be locked");}
-  }
-
-  function testUnlock(){
-    Payroll payroll = new Payroll();
-    payroll.scapeHatch();
-    Payroll.State state = payroll.state();
-    if(state!=Payroll.State.Locked){Assert.fail("should be locked");}
-
-    payroll.unlock();
-    state = payroll.state();
-    if(state!=Payroll.State.Unlocked){Assert.fail("should be unlocked");}
-  }
+  }  
 
   function testCalculatePayrollBurnrate(){
     Payroll payroll = new Payroll();
     payroll.addEmployee(employeeTestAddress1,allowedTokensTest1,yearlyUSDSalaryTest1);
     payroll.addEmployee(employeeTestAddress2,allowedTokensTest2,yearlyUSDSalaryTest2);
-
   }
 
 }
