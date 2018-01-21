@@ -24,11 +24,7 @@ contract Payroll is PayrollInterface, Pausable{
     uint256 yearlyUSDSalary;
   }
 
-  function Payroll() public {
-  }
-
-  function() payable {
-  }
+  function() payable { }
 
   function addEmployee(
     address _accountAddress,
@@ -89,9 +85,10 @@ contract Payroll is PayrollInterface, Pausable{
 
   function escapeHatch() public onlyOwner whenNotPaused{
     if(this.balance>0){
+      //rescue ether
       msg.sender.transfer(this.balance);
     }
-    
+
     pause();
     //TODO rescue tokens
   }
