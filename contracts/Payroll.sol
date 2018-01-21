@@ -6,14 +6,14 @@ import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 
 contract Payroll is PayrollInterface, Pausable{
 
-  address public oracle;
-  uint256 public lastEmployeeId;
-  uint256 public employeeCount;
-  uint256 public salariesSummation;
+  address oracle;
+  mapping(address=>uint) addressToEmployeeId;
+  mapping(uint=>address) employeeIdToAddress;
+  mapping(uint=>Employee) employeeIdToEmployee;
 
-  mapping(address=>uint) public addressToEmployeeId;
-  mapping(uint=>address) public employeeIdToAddress;
-  mapping(uint=>Employee) public employeeIdToEmployee;
+  uint256 lastEmployeeId;
+  uint256 employeeCount;
+  uint256 salariesSummation;
 
   struct Employee{
     address accountAddress;
@@ -50,18 +50,7 @@ contract Payroll is PayrollInterface, Pausable{
     setEmployeeSalary(employeeId,_initialYearlyUSDSalary);
   }
 
-  function getEmployeeCount() constant public returns (uint256){
-    return employeeCount;
-  }
 
-  function getEmployee(uint256 employeeId) constant public returns (address,address[],uint256) {
-    Employee storage e = employeeIdToEmployee[employeeId];
-    return (e.accountAddress,e.allowedTokens,e.yearlyUSDSalary);
-  }
-
-  function getSalariesSummation() constant public returns (uint256){
-    return salariesSummation;
-  }
 
   function setEmployeeSalary(uint256 employeeId, uint256 yearlyUSDSalary) public
     whenNotPaused
@@ -95,16 +84,32 @@ contract Payroll is PayrollInterface, Pausable{
   }
 
   function scapeHatch() public onlyOwner whenNotPaused{
+    //TODO rescue ether
+    //TODO rescue tokens
     pause();
   }
 
-  function calculatePayrollBurnrate() constant public returns (uint256){
+  function calculatePayrollBurnrate() view public returns (uint256){
     return SafeMath.div(salariesSummation,12);
   }
 
+  // public getters
+  function getEmployeeId(address employeeAddress) view public returns (uint256){
+    return addressToEmployeeId[employeeAddress];
+  }
 
+  function getEmployeeCount() view public returns (uint256){
+    return employeeCount;
+  }
 
+  function getEmployee(uint256 employeeId) view public returns (address,address[],uint256) {
+    Employee storage e = employeeIdToEmployee[employeeId];
+    return (e.accountAddress,e.allowedTokens,e.yearlyUSDSalary);
+  }
 
+  function getSalariesSummation() view public returns (uint256){
+    return salariesSummation;
+  }
 
 
   // modifiers
@@ -143,7 +148,7 @@ contract Payroll is PayrollInterface, Pausable{
   //function getEmployee(uint256 employeeId) constant public returns (address employee){} // Return all important info too
 
   //function calculatePayrollBurnrate() constant public returns (uint256){} // Monthly usd amount spent in salaries
-  function calculatePayrollRunway() constant public returns (uint256){} // Days until the contract can run out of funds
+  function calculatePayrollRunway() view public returns (uint256){} // Days until the contract can run out of funds
 
   /* EMPLOYEE ONLY */
   function determineAllocation(address[] tokens, uint256[] distribution) public {} // only callable once every 6 months

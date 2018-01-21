@@ -26,7 +26,7 @@ contract TestPayroll {
     uint256 salariesSummationAfter = payroll.getSalariesSummation();
     Assert.equal(salariesSummationAfter,salariesSummationBefore+yearlyUSDSalaryTest1,'salaries summation should be non zero');
 
-    uint256 employeeId = payroll.addressToEmployeeId(employeeTestAddress1);
+    uint256 employeeId = payroll.getEmployeeId(employeeTestAddress1);
     var (accountAddress,allowedTokens,yearlyUSDSalary) = payroll.getEmployee(employeeId);
 
     Assert.equal(accountAddress,employeeTestAddress1,'addresses should be equal');
@@ -40,7 +40,7 @@ contract TestPayroll {
     uint256 employeeCountBefore = payroll.getEmployeeCount();
     uint256 salariesSummationBefore = payroll.getSalariesSummation();
 
-    uint256 employeeId = payroll.addressToEmployeeId(employeeTestAddress1);
+    uint256 employeeId = payroll.getEmployeeId(employeeTestAddress1);
     var (accountAddress,allowedTokens,yearlyUSDSalary) = payroll.getEmployee(employeeId);
 
     payroll.removeEmployee(employeeId);
@@ -49,7 +49,7 @@ contract TestPayroll {
 
     Assert.equal(employeeCountAfter,employeeCountBefore-1,'addresses should be equal.');
     Assert.equal(salariesSummationAfter,salariesSummationBefore-yearlyUSDSalary,'salary should be equal.');
-  }  
+  }
 
   function testCalculatePayrollBurnrate(){
     Payroll payroll = new Payroll();
