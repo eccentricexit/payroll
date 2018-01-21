@@ -15,6 +15,8 @@ contract Payroll is PayrollInterface, Pausable{
   uint256 employeeCount;
   uint256 salariesSummation;
 
+  uint8 constant TWELVE_MONTHS = 12;
+
   struct Employee{
     address accountAddress;
     address[] allowedTokens;
@@ -49,7 +51,6 @@ contract Payroll is PayrollInterface, Pausable{
 
     setEmployeeSalary(employeeId,_initialYearlyUSDSalary);
   }
-
 
 
   function setEmployeeSalary(uint256 employeeId, uint256 yearlyUSDSalary) public
@@ -90,7 +91,7 @@ contract Payroll is PayrollInterface, Pausable{
   }
 
   function calculatePayrollBurnrate() view public returns (uint256){
-    return SafeMath.div(salariesSummation,12);
+    return SafeMath.div(salariesSummation,TWELVE_MONTHS);
   }
 
   // public getters
