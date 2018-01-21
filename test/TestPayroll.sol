@@ -64,7 +64,6 @@ contract TestPayroll {
     Assert.equal(payrollBurnRateTest,payrollBurnRate,'should return payrollrate');
   }
 
-
   function testEscapeHatchPausesContract(){
     Payroll payroll = new Payroll();
     Assert.equal(payroll.paused(),false,'contract should not be paused');
@@ -73,5 +72,5 @@ contract TestPayroll {
 
     Assert.equal(payroll.paused(),true,'contract should be paused');
   }
-  
+
 }
