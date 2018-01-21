@@ -65,4 +65,6 @@ contract TestPayroll {
     Assert.equal(payrollBurnRateTest,payrollBurnRate,'should return payrollrate');
   }
 
+  
+
 }

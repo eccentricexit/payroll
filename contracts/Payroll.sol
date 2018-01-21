@@ -86,7 +86,7 @@ contract Payroll is PayrollInterface, Pausable{
     employeeIdToEmployee[employeeId] = emptyStruct;
   }
 
-  function scapeHatch() public onlyOwner whenNotPaused{
+  function escapeHatch() public onlyOwner whenNotPaused{
     owner.transfer(this.balance);
     //TODO rescue tokens
     pause();
@@ -144,7 +144,7 @@ contract Payroll is PayrollInterface, Pausable{
   //function removeEmployee(uint256 employeeId) public {}
 
   function addFunds() payable public {}
-  //function scapeHatch() public {}
+  //function escapeHatch() public {}
   //function addTokenFunds()? // Use approveAndCall or ERC223 tokenFallback
 
   //function getEmployeeCount() constant public returns (uint256){}
