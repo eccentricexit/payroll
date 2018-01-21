@@ -24,7 +24,7 @@ contract Payroll is PayrollInterface, Pausable{
     uint256 yearlyUSDSalary;
   }
 
-  function() payable { }
+  function depositFunds() payable public whenNotPaused { }
 
   function addEmployee(
     address _accountAddress,
@@ -85,12 +85,12 @@ contract Payroll is PayrollInterface, Pausable{
 
   function escapeHatch() public onlyOwner whenNotPaused{
     if(this.balance>0){
-      //rescue ether
       msg.sender.transfer(this.balance);
     }
 
-    pause();
     //TODO rescue tokens
+
+    pause();
   }
 
   function calculatePayrollBurnrate() view public returns (uint256){
@@ -114,7 +114,6 @@ contract Payroll is PayrollInterface, Pausable{
   function getSalariesSummationUSD() view public returns (uint256){
     return salariesSummationUSD;
   }
-
 
   // modifiers
   modifier employeeExists(uint256 employeeId){

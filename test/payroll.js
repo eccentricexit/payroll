@@ -11,7 +11,8 @@ contract('Payroll', function(accounts) {
     let amountInWei = web3.toWei(5,"ether");
     let ownerAddress = accounts[0];
     let contractAddress = contractInstance.address;
-    await web3.eth.sendTransaction({from:ownerAddress,to: contractAddress,value: amountInWei});
+    //await web3.eth.sendTransaction({from:ownerAddress,to: contractAddress,value: amountInWei});
+    await contractInstance.depositFunds({from:ownerAddress,to: contractAddress,value: amountInWei});
     contractBalance = await web3.eth.getBalance(contractInstance.address).toNumber();
     assert.equal(contractBalance,amountInWei,'contract balance should be '+amountInWei);
 
