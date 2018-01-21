@@ -16,8 +16,6 @@ contract Payroll is PayrollInterface, Pausable{
   uint256 employeeCount;
   uint256 salariesSummationUSD;
 
-
-
   uint8 constant TWELVE_MONTHS = 12;
 
   struct Employee{
@@ -27,6 +25,9 @@ contract Payroll is PayrollInterface, Pausable{
   }
 
   function Payroll() public {
+  }
+
+  function() payable {
   }
 
   function addEmployee(
@@ -87,9 +88,12 @@ contract Payroll is PayrollInterface, Pausable{
   }
 
   function escapeHatch() public onlyOwner whenNotPaused{
-    owner.transfer(this.balance);
-    //TODO rescue tokens
+    if(this.balance>0){
+      msg.sender.transfer(this.balance);
+    }
+    
     pause();
+    //TODO rescue tokens
   }
 
   function calculatePayrollBurnrate() view public returns (uint256){
