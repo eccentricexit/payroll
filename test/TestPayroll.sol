@@ -19,14 +19,14 @@ contract TestPayroll {
     Payroll payroll = new Payroll();
 
     uint256 employeeCountBefore = payroll.getEmployeeCount();
-    uint256 salariesSummationBefore = payroll.getSalariesSummation();
+    uint256 salariesSummationBefore = payroll.getSalariesSummationUSD();
 
     payroll.addEmployee(employeeTestAddress1,allowedTokensTest1,yearlyUSDSalaryTest1);
 
     uint256 employeeCountAfter = payroll.getEmployeeCount();
     Assert.equal(employeeCountAfter,employeeCountBefore+1,'employee count should be 1');
 
-    uint256 salariesSummationAfter = payroll.getSalariesSummation();
+    uint256 salariesSummationAfter = payroll.getSalariesSummationUSD();
     Assert.equal(salariesSummationAfter,salariesSummationBefore+yearlyUSDSalaryTest1,'salaries summation should be non zero');
 
     uint256 employeeId = payroll.getEmployeeId(employeeTestAddress1);
@@ -41,14 +41,14 @@ contract TestPayroll {
     payroll.addEmployee(employeeTestAddress1,allowedTokensTest1,yearlyUSDSalaryTest1);
 
     uint256 employeeCountBefore = payroll.getEmployeeCount();
-    uint256 salariesSummationBefore = payroll.getSalariesSummation();
+    uint256 salariesSummationBefore = payroll.getSalariesSummationUSD();
 
     uint256 employeeId = payroll.getEmployeeId(employeeTestAddress1);
     var (accountAddress,allowedTokens,yearlyUSDSalary) = payroll.getEmployee(employeeId);
 
     payroll.removeEmployee(employeeId);
     uint256 employeeCountAfter = payroll.getEmployeeCount();
-    uint256 salariesSummationAfter = payroll.getSalariesSummation();
+    uint256 salariesSummationAfter = payroll.getSalariesSummationUSD();
 
     Assert.equal(employeeCountAfter,employeeCountBefore-1,'addresses should be equal.');
     Assert.equal(salariesSummationAfter,salariesSummationBefore-yearlyUSDSalary,'salary should be equal.');
@@ -60,7 +60,7 @@ contract TestPayroll {
     payroll.addEmployee(employeeTestAddress2,allowedTokensTest2,yearlyUSDSalaryTest2);
 
     uint256 payrollBurnRateTest = payroll.calculatePayrollBurnrate();
-    uint256 payrollBurnRate = SafeMath.div(payroll.getSalariesSummation(),TWELVE_MONTHS);
+    uint256 payrollBurnRate = SafeMath.div(payroll.getSalariesSummationUSD(),TWELVE_MONTHS);
     Assert.equal(payrollBurnRateTest,payrollBurnRate,'should return payrollrate');
   }
 

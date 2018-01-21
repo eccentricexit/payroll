@@ -5,6 +5,7 @@ import 'zeppelin-solidity/contracts/lifecycle/Pausable.sol';
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 
 contract Payroll is PayrollInterface, Pausable{
+  using SafeMath for uint256;
 
   address oracle;
   mapping(address=>uint) addressToEmployeeId;
@@ -13,7 +14,9 @@ contract Payroll is PayrollInterface, Pausable{
 
   uint256 lastEmployeeId;
   uint256 employeeCount;
-  uint256 salariesSummation;
+  uint256 salariesSummationUSD;
+
+
 
   uint8 constant TWELVE_MONTHS = 12;
 
@@ -52,16 +55,15 @@ contract Payroll is PayrollInterface, Pausable{
     setEmployeeSalary(employeeId,_initialYearlyUSDSalary);
   }
 
-
   function setEmployeeSalary(uint256 employeeId, uint256 yearlyUSDSalary) public
     whenNotPaused
     onlyOwner
     employeeExists(employeeId)
     {
     Employee storage e = employeeIdToEmployee[employeeId];
-    salariesSummation = SafeMath.sub(salariesSummation,e.yearlyUSDSalary);
+    salariesSummationUSD = salariesSummationUSD.sub(e.yearlyUSDSalary);
     e.yearlyUSDSalary = yearlyUSDSalary;
-    salariesSummation = SafeMath.add(salariesSummation,e.yearlyUSDSalary);
+    salariesSummationUSD = salariesSummationUSD.add(e.yearlyUSDSalary);
   }
 
   function removeEmployee(uint256 employeeId) public
@@ -91,7 +93,7 @@ contract Payroll is PayrollInterface, Pausable{
   }
 
   function calculatePayrollBurnrate() view public returns (uint256){
-    return SafeMath.div(salariesSummation,TWELVE_MONTHS);
+    return salariesSummationUSD.div(TWELVE_MONTHS);
   }
 
   // public getters
@@ -108,8 +110,8 @@ contract Payroll is PayrollInterface, Pausable{
     return (e.accountAddress,e.allowedTokens,e.yearlyUSDSalary);
   }
 
-  function getSalariesSummation() view public returns (uint256){
-    return salariesSummation;
+  function getSalariesSummationUSD() view public returns (uint256){
+    return salariesSummationUSD;
   }
 
 
