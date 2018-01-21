@@ -87,7 +87,7 @@ contract Payroll is PayrollInterface, Pausable{
   }
 
   function scapeHatch() public onlyOwner whenNotPaused{
-    //TODO rescue ether
+    owner.transfer(this.balance);
     //TODO rescue tokens
     pause();
   }

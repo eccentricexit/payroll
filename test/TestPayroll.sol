@@ -4,6 +4,7 @@ import "../contracts/Payroll.sol";
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
 
 contract TestPayroll {
+  using SafeMath for uint256;
 
   address constant employeeTestAddress1 = 0xc5fdf4076b8f3a5357c5e395ab970b5b54098fef;
   address[] allowedTokensTest1 = [0x2932b7a2355d6fecc4b5c0b6bd44cc31df247a2e];
@@ -60,7 +61,7 @@ contract TestPayroll {
     payroll.addEmployee(employeeTestAddress2,allowedTokensTest2,yearlyUSDSalaryTest2);
 
     uint256 payrollBurnRateTest = payroll.calculatePayrollBurnrate();
-    uint256 payrollBurnRate = SafeMath.div(payroll.getSalariesSummationUSD(),TWELVE_MONTHS);
+    uint256 payrollBurnRate = payroll.getSalariesSummationUSD().div(TWELVE_MONTHS);
     Assert.equal(payrollBurnRateTest,payrollBurnRate,'should return payrollrate');
   }
 
