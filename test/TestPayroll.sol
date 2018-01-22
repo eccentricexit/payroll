@@ -2,6 +2,7 @@ import "truffle/Assert.sol";
 import "truffle/DeployedAddresses.sol";
 import "../contracts/Payroll.sol";
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
+import "zeppelin-solidity/contracts/mocks/BasicTokenMock.sol";
 
 contract TestPayroll {
   using SafeMath for uint256;
@@ -104,6 +105,26 @@ contract TestPayroll {
     Assert.equal(tokenAddressAfterRemove,0,'there should be no token address');
     Assert.equal(tokenUsdRateAfterRemove,0,'there should no token rate');
     Assert.equal(payroll.isTokenHandled(testTokenAddress),false,'token should have been removed');
+  }
+
+  function testRescueTokensOnEscape(){
+    uint256 initialSupply = 2000000;
+    Payroll payroll = new Payroll();
+    BasicTokenMock testToken = new BasicTokenMock(this,initialSupply);
+
+    Assert.equal(testToken.balanceOf(this),testToken.totalSupply(),'owner should own all tokens');
+
+    uint256 testAmount = 20000;
+    if(testToken.balanceOf(this)>0){
+      testToken.transfer(payroll,testAmount);
+    }
+    Assert.equal(testToken.balanceOf(payroll),testAmount,'payroll should own test tokens');
+
+    payroll.addToken(testToken,10);
+    Assert.equal(payroll.isTokenHandled(testToken),true,'token should be handled');
+
+    payroll.escapeHatch();
+    Assert.equal(testToken.balanceOf(payroll),0,'payroll should not own test tokens');
   }
 
 

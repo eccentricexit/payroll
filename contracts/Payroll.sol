@@ -3,9 +3,13 @@ pragma solidity ^0.4.4;
 import './interfaces/PayrollInterface.sol';
 import 'zeppelin-solidity/contracts/lifecycle/Pausable.sol';
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
+import 'zeppelin-solidity/contracts/token/ERC20Basic.sol';
+import 'zeppelin-solidity/contracts/token/SafeERC20.sol';
+
 
 contract Payroll is PayrollInterface, Pausable{
   using SafeMath for uint256;
+  using SafeERC20 for ERC20Basic;
 
   address oracle;
   mapping(address=>uint) addressToEmployeeId;
@@ -119,13 +123,17 @@ contract Payroll is PayrollInterface, Pausable{
   }
 
   function escapeHatch() public onlyOwner whenNotPaused{
+    pause();
     if(this.balance>0){
       msg.sender.transfer(this.balance);
     }
 
-    //TODO rescue tokens
-
-    pause();
+    for(uint256 i=0;i<tokensHandled.length;i++){
+      ERC20Basic token = ERC20Basic(tokensHandled[i].tokenAddress);
+      if(token.balanceOf(this)>0){
+        token.safeTransfer(msg.sender,token.balanceOf(this));
+      }
+    }
   }
 
   function calculatePayrollBurnrate() view public returns (uint256){
@@ -162,7 +170,7 @@ contract Payroll is PayrollInterface, Pausable{
       return false;
     }
 
-     Token memory token = tokensHandled[tokenId];
+    Token memory token = tokensHandled[tokenId];
     if(token.tokenAddress==tokenAddress){
       return true;
     }else{
