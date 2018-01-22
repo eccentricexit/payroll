@@ -132,6 +132,10 @@ contract Payroll is PayrollInterface, Pausable{
     tokensHandled[tokenId].usdRateCents = usdExchangeRate;
   }
 
+  function setEthExchangeRate(uint256 usdExchangeRateCents) public whenNotPaused onlyOracle {
+    ethUSDRateCents = usdExchangeRateCents;
+  }
+
   function escapeHatch() public onlyOwner whenNotPaused{
     pause();
     if(this.balance>0){
