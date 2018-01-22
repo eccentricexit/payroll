@@ -93,8 +93,8 @@ contract Payroll is PayrollInterface, Pausable{
     employeeIdToEmployee[employeeId] = emptyStruct;
   }
 
-  function addToken(address tokenAddress) onlyOwner whenNotPaused tokenNotHandled(tokenAddress){
-    Token memory token = Token(tokenAddress,0);
+  function addToken(address tokenAddress,uint256 usdRateCents) onlyOwner whenNotPaused tokenNotHandled(tokenAddress){
+    Token memory token = Token(tokenAddress,usdRateCents);
     tokensHandled.push(token);
 
     uint256 tokenId = tokensHandled.length.sub(1);

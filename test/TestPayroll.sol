@@ -80,10 +80,11 @@ contract TestPayroll {
     Payroll payroll = new Payroll();
 
     Assert.equal(payroll.isTokenHandled(testTokenAddress),false,'token should not yet be registered');
-    payroll.addToken(testTokenAddress);
+    payroll.addToken(testTokenAddress,testTokenRate);
 
     var (tokenAddressAfterAdd,tokenUsdRateAfterAdd) = payroll.getToken(testTokenAddress);
     Assert.equal(tokenAddressAfterAdd,testTokenAddress,'there should be a token address');
+    Assert.equal(tokenUsdRateAfterAdd,testTokenRate,'there should be a token rate');
     Assert.equal(payroll.isTokenHandled(testTokenAddress),true,'token should be registered');
   }
 
@@ -91,10 +92,11 @@ contract TestPayroll {
     address testTokenAddress = 0x0f4f2ac550a1b4e2280d04c21cea7ebd822934b5;
     uint256 testTokenRate = 12;
     Payroll payroll = new Payroll();
-    payroll.addToken(testTokenAddress);
+    payroll.addToken(testTokenAddress,testTokenRate);
 
     var (tokenAddressAfterAdd,tokenUsdRateAfterAdd) = payroll.getToken(testTokenAddress);
-    Assert.equal(tokenAddressAfterAdd,testTokenAddress,'there should be a token address');    
+    Assert.equal(tokenAddressAfterAdd,testTokenAddress,'there should be a token address');
+    Assert.equal(tokenUsdRateAfterAdd,testTokenRate,'there should be a token rate');
     Assert.equal(payroll.isTokenHandled(testTokenAddress),true,'token should be registered');
 
     payroll.removeToken(testTokenAddress);
@@ -113,12 +115,13 @@ contract TestPayroll {
     Assert.equal(testToken.balanceOf(this),testToken.totalSupply(),'owner should own all tokens');
 
     uint256 testAmount = 20000;
+    uint256 testTokenRate = 12;
     if(testToken.balanceOf(this)>0){
       testToken.transfer(payroll,testAmount);
     }
     Assert.equal(testToken.balanceOf(payroll),testAmount,'payroll should own test tokens');
 
-    payroll.addToken(testToken);
+    payroll.addToken(testToken,testTokenRate);
     Assert.equal(payroll.isTokenHandled(testToken),true,'token should be handled');
 
     payroll.escapeHatch();
