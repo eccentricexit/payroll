@@ -31,6 +31,7 @@ contract Payroll is PayrollInterface, Pausable{
     address accountAddress;
     address[] allowedTokens;
     uint256 yearlyUSDSalaryCents;
+    uint256 lastPayoutTimestamp;
   }
 
   struct Token{
@@ -148,10 +149,19 @@ contract Payroll is PayrollInterface, Pausable{
         token.safeTransfer(msg.sender,token.balanceOf(this));
       }
     }
+
+  }
+
+  function payday() public onlyEmployee onlyOnceAMonth{
+    //TODO
   }
 
   function calculatePayrollBurnrate() view public returns (uint256){
     return salariesSummationUSDCents.div(TWELVE_MONTHS);
+  }
+
+  function calculatePayrollRunway() view public returns (uint256) {
+    //TODO
   }
 
   // public getters
@@ -230,6 +240,20 @@ contract Payroll is PayrollInterface, Pausable{
     _;
   }
 
+  modifier onlyEmployee(){
+    require(employeeCount>0);
+    require(addressToEmployeeId[msg.sender]!=0)
+    _;
+  }
+
+  modifier onlyOnceAMonth(){
+    uint256 THIRTY_DAYS = 30 * 86400;
+    uint256 employeeId = addressToEmployeeId[msg.sender];
+    Employee memory employee = employeeIdToEmployee[employeeId];
+    require(block.timestamp>employee.lastPayoutTimestamp.add(THIRTY_DAYS))
+    _;
+  }
+
 
   /* OWNER ONLY */
   //function addEmployee(address accountAddress, address[] allowedTokens, uint256 initialYearlyUSDSalary) public {}
@@ -248,7 +272,7 @@ contract Payroll is PayrollInterface, Pausable{
 
   /* EMPLOYEE ONLY */
   function determineAllocation(address[] tokens, uint256[] distribution) public {} // only callable once every 6 months
-  function payday() public {} // only callable once a month
+  //function payday() public {} // only callable once a month
 
   /* ORACLE ONLY */
   // function setExchangeRate(address token, uint256 usdExchangeRate) public {} // uses decimals from token
