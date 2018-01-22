@@ -18,7 +18,7 @@ contract Payroll is PayrollInterface, Pausable{
 
   uint256 lastEmployeeId;
   uint256 employeeCount;
-  uint256 salariesSummationUSD;
+  uint256 salariesSummationUSDcents;
 
   Token[] tokensHandled;
   mapping(address=>uint) addressToTokenId;
@@ -34,7 +34,7 @@ contract Payroll is PayrollInterface, Pausable{
 
   struct Token{
     address tokenAddress;
-    uint256 usdRate;
+    uint256 usdRateCents;
   }
 
   function addFunds() payable public whenNotPaused{}
@@ -71,9 +71,9 @@ contract Payroll is PayrollInterface, Pausable{
     employeeExists(employeeId)
     {
     Employee storage employee = employeeIdToEmployee[employeeId];
-    salariesSummationUSD = salariesSummationUSD.sub(employee.yearlyUSDSalary);
+    salariesSummationUSDcents = salariesSummationUSDcents.sub(employee.yearlyUSDSalary);
     employee.yearlyUSDSalary = yearlyUSDSalary;
-    salariesSummationUSD = salariesSummationUSD.add(employee.yearlyUSDSalary);
+    salariesSummationUSDcents = salariesSummationUSDcents.add(employee.yearlyUSDSalary);
   }
 
   function removeEmployee(uint256 employeeId) public
@@ -92,8 +92,8 @@ contract Payroll is PayrollInterface, Pausable{
     employeeIdToEmployee[employeeId] = emptyStruct;
   }
 
-  function addToken(address tokenAddress,uint256 usdRate) onlyOwner whenNotPaused tokenNotHandled(tokenAddress){
-    Token memory token = Token(tokenAddress,usdRate);
+  function addToken(address tokenAddress,uint256 usdRateCents) onlyOwner whenNotPaused tokenNotHandled(tokenAddress){
+    Token memory token = Token(tokenAddress,usdRateCents);
     tokensHandled.push(token);
 
     uint256 tokenId = tokensHandled.length.sub(1);
@@ -112,7 +112,7 @@ contract Payroll is PayrollInterface, Pausable{
       address lastItemAddress = tokenIdToAddress[lastItemId];
 
       tokensHandled[tokenId].tokenAddress = lastItemAddress;
-      tokensHandled[tokenId].usdRate = tokensHandled[lastItemId].usdRate;
+      tokensHandled[tokenId].usdRateCents = tokensHandled[lastItemId].usdRateCents;
 
       addressToTokenId[lastItemAddress] = tokenId;
       tokenIdToAddress[lastItemId] = 0;
@@ -128,7 +128,7 @@ contract Payroll is PayrollInterface, Pausable{
 
   function setExchangeRate(address token,uint256 usdExchangeRate) public whenNotPaused onlyOracle tokenHandled(token){
     uint256 tokenId = addressToTokenId[token];
-    tokensHandled[tokenId].usdRate = usdExchangeRate;
+    tokensHandled[tokenId].usdRateCents = usdExchangeRate;
   }
 
   function escapeHatch() public onlyOwner whenNotPaused{
@@ -146,7 +146,7 @@ contract Payroll is PayrollInterface, Pausable{
   }
 
   function calculatePayrollBurnrate() view public returns (uint256){
-    return salariesSummationUSD.div(TWELVE_MONTHS);
+    return salariesSummationUSDcents.div(TWELVE_MONTHS);
   }
 
   // public getters
@@ -164,13 +164,13 @@ contract Payroll is PayrollInterface, Pausable{
   }
 
   function getSalariesSummationUSD() view public returns (uint256){
-    return salariesSummationUSD;
+    return salariesSummationUSDcents;
   }
 
   function getToken(address tokenAddress) view public /*tokenHandled(tokenAddress)*/ returns (address,uint256) {
     uint256 tokenId = addressToTokenId[tokenAddress];
     Token memory token = tokensHandled[tokenId];
-    return (token.tokenAddress,token.usdRate);
+    return (token.tokenAddress,token.usdRateCents);
   }
 
   function isTokenHandled(address tokenAddress) view public returns(bool){
