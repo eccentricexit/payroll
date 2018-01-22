@@ -18,7 +18,7 @@ contract Payroll is PayrollInterface, Pausable{
 
   uint256 lastEmployeeId;
   uint256 employeeCount;
-  uint256 salariesSummationUSDcents;
+  uint256 salariesSummationUSDCents;
 
   Token[] tokensHandled;
   mapping(address=>uint) addressToTokenId;
@@ -29,7 +29,7 @@ contract Payroll is PayrollInterface, Pausable{
   struct Employee{
     address accountAddress;
     address[] allowedTokens;
-    uint256 yearlyUSDSalary;
+    uint256 yearlyUSDSalaryCents;
   }
 
   struct Token{
@@ -51,7 +51,7 @@ contract Payroll is PayrollInterface, Pausable{
     Employee memory employee = Employee({
       accountAddress:_accountAddress,
       allowedTokens:_allowedTokens,
-      yearlyUSDSalary:0
+      yearlyUSDSalaryCents:0
     });
 
     lastEmployeeId++;
@@ -65,15 +65,15 @@ contract Payroll is PayrollInterface, Pausable{
     setEmployeeSalary(employeeId,_initialYearlyUSDSalary);
   }
 
-  function setEmployeeSalary(uint256 employeeId, uint256 yearlyUSDSalary) public
+  function setEmployeeSalary(uint256 employeeId, uint256 yearlyUSDSalaryCents) public
     whenNotPaused
     onlyOwner
     employeeExists(employeeId)
     {
     Employee storage employee = employeeIdToEmployee[employeeId];
-    salariesSummationUSDcents = salariesSummationUSDcents.sub(employee.yearlyUSDSalary);
-    employee.yearlyUSDSalary = yearlyUSDSalary;
-    salariesSummationUSDcents = salariesSummationUSDcents.add(employee.yearlyUSDSalary);
+    salariesSummationUSDCents = salariesSummationUSDCents.sub(employee.yearlyUSDSalaryCents);
+    employee.yearlyUSDSalaryCents = yearlyUSDSalaryCents;
+    salariesSummationUSDCents = salariesSummationUSDCents.add(employee.yearlyUSDSalaryCents);
   }
 
   function removeEmployee(uint256 employeeId) public
@@ -146,7 +146,7 @@ contract Payroll is PayrollInterface, Pausable{
   }
 
   function calculatePayrollBurnrate() view public returns (uint256){
-    return salariesSummationUSDcents.div(TWELVE_MONTHS);
+    return salariesSummationUSDCents.div(TWELVE_MONTHS);
   }
 
   // public getters
@@ -160,11 +160,11 @@ contract Payroll is PayrollInterface, Pausable{
 
   function getEmployee(uint256 employeeId) view public returns (address,address[],uint256) {
     Employee memory employee = employeeIdToEmployee[employeeId];
-    return (employee.accountAddress,employee.allowedTokens,employee.yearlyUSDSalary);
+    return (employee.accountAddress,employee.allowedTokens,employee.yearlyUSDSalaryCents);
   }
 
   function getSalariesSummationUSD() view public returns (uint256){
-    return salariesSummationUSDcents;
+    return salariesSummationUSDCents;
   }
 
   function getToken(address tokenAddress) view public /*tokenHandled(tokenAddress)*/ returns (address,uint256) {
@@ -228,7 +228,7 @@ contract Payroll is PayrollInterface, Pausable{
 
   /* OWNER ONLY */
   //function addEmployee(address accountAddress, address[] allowedTokens, uint256 initialYearlyUSDSalary) public {}
-  //function setEmployeeSalary(uint256 employeeId, uint256 yearlyUSDSalary) public {}
+  //function setEmployeeSalary(uint256 employeeId, uint256 yearlyUSDSalaryCents) public {}
   //function removeEmployee(uint256 employeeId) public {}
 
   //function addFunds() payable public{}
