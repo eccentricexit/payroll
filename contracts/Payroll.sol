@@ -50,11 +50,12 @@ contract Payroll is PayrollInterface, Pausable{
     employeeNotExists(_accountAddress)
     {
 
-    Employee memory employee = Employee({
-      accountAddress:_accountAddress,
-      allowedTokens:_allowedTokens,
-      yearlyUSDSalaryCents:0
-    });
+    Employee memory employee = Employee(
+      _accountAddress,
+      _allowedTokens,
+      0,
+      block.timestamp //assuming employee will be allowed to call function 30 days from now
+    );
 
     lastEmployeeId++;
     employeeCount++;
@@ -90,7 +91,7 @@ contract Payroll is PayrollInterface, Pausable{
     employeeIdToAddress[employeeId] = 0;
 
     address[] memory emptyArr;
-    Employee memory emptyStruct = Employee(0,emptyArr,0);
+    Employee memory emptyStruct = Employee(0,emptyArr,0,0);
     employeeIdToEmployee[employeeId] = emptyStruct;
   }
 
@@ -242,7 +243,7 @@ contract Payroll is PayrollInterface, Pausable{
 
   modifier onlyEmployee(){
     require(employeeCount>0);
-    require(addressToEmployeeId[msg.sender]!=0)
+    require(addressToEmployeeId[msg.sender]!=0);
     _;
   }
 
@@ -250,7 +251,7 @@ contract Payroll is PayrollInterface, Pausable{
     uint256 THIRTY_DAYS = 30 * 86400;
     uint256 employeeId = addressToEmployeeId[msg.sender];
     Employee memory employee = employeeIdToEmployee[employeeId];
-    require(block.timestamp>employee.lastPayoutTimestamp.add(THIRTY_DAYS))
+    require(block.timestamp>employee.lastPayoutTimestamp.add(THIRTY_DAYS));
     _;
   }
 
@@ -268,7 +269,7 @@ contract Payroll is PayrollInterface, Pausable{
   //function getEmployee(uint256 employeeId) constant public returns (address employee){} // Return all important info too
 
   //function calculatePayrollBurnrate() constant public returns (uint256){} // Monthly usd amount spent in salaries
-  function calculatePayrollRunway() view public returns (uint256){} // Days until the contract can run out of funds
+  //function calculatePayrollRunway() view public returns (uint256){} // Days until the contract can run out of funds
 
   /* EMPLOYEE ONLY */
   function determineAllocation(address[] tokens, uint256[] distribution) public {} // only callable once every 6 months
