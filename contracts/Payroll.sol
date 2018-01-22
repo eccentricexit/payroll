@@ -122,6 +122,15 @@ contract Payroll is PayrollInterface, Pausable{
     addressToTokenId[tokenAddress] = 0;
   }
 
+  function setOracle(address oracleAddress) onlyOwner whenNotPaused{
+    oracle = oracleAddress;
+  }
+
+  function setExchangeRate(address token,uint256 usdExchangeRate) public whenNotPaused onlyOracle tokenHandled(token){
+    uint256 tokenId = addressToTokenId[token];
+    tokensHandled[tokenId].usdRate = usdExchangeRate;
+  }
+
   function escapeHatch() public onlyOwner whenNotPaused{
     pause();
     if(this.balance>0){
@@ -212,9 +221,7 @@ contract Payroll is PayrollInterface, Pausable{
 
   modifier tokenHandled(address tokenAddress){
     require(tokensHandled.length>0);
-    uint256 tokenId = addressToTokenId[tokenAddress];
-    Token memory token = tokensHandled[tokenId];
-    require(token.tokenAddress==tokenAddress);
+    require(isTokenHandled(tokenAddress));
     _;
   }
 
@@ -239,6 +246,6 @@ contract Payroll is PayrollInterface, Pausable{
   function payday() public {} // only callable once a month
 
   /* ORACLE ONLY */
-  function setExchangeRate(address token, uint256 usdExchangeRate) public {} // uses decimals from token
+  // function setExchangeRate(address token, uint256 usdExchangeRate) public {} // uses decimals from token
 
 }
