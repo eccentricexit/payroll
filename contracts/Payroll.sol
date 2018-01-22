@@ -19,6 +19,7 @@ contract Payroll is PayrollInterface, Pausable{
   uint256 lastEmployeeId;
   uint256 employeeCount;
   uint256 salariesSummationUSDCents;
+  uint256 ethUSDRateCents;
 
   Token[] tokensHandled;
   mapping(address=>uint) addressToTokenId;
@@ -92,8 +93,8 @@ contract Payroll is PayrollInterface, Pausable{
     employeeIdToEmployee[employeeId] = emptyStruct;
   }
 
-  function addToken(address tokenAddress,uint256 usdRateCents) onlyOwner whenNotPaused tokenNotHandled(tokenAddress){
-    Token memory token = Token(tokenAddress,usdRateCents);
+  function addToken(address tokenAddress) onlyOwner whenNotPaused tokenNotHandled(tokenAddress){
+    Token memory token = Token(tokenAddress,0);
     tokensHandled.push(token);
 
     uint256 tokenId = tokensHandled.length.sub(1);
