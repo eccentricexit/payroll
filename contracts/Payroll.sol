@@ -37,7 +37,7 @@ contract Payroll is PayrollInterface, Pausable{
     uint256 usdRate;
   }
 
-  function depositFunds() payable public whenNotPaused { }
+  function addFunds() payable public whenNotPaused{}
 
   function addEmployee(
     address _accountAddress,
@@ -224,7 +224,7 @@ contract Payroll is PayrollInterface, Pausable{
   //function setEmployeeSalary(uint256 employeeId, uint256 yearlyUSDSalary) public {}
   //function removeEmployee(uint256 employeeId) public {}
 
-  function addFunds() payable public {}
+  //function addFunds() payable public{}
   //function escapeHatch() public {}
   //function addTokenFunds()? // Use approveAndCall or ERC223 tokenFallback
 
