@@ -26,7 +26,4 @@ contract TestMathFunctions {
     Assert.equal(payrollBurnRateTest,payrollBurnRate,'should return payrollrate');
   }
 
-
-
-
 }
