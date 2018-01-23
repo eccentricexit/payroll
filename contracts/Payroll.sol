@@ -26,6 +26,8 @@ contract Payroll is PayrollInterface, Pausable{
   mapping(uint=>address) tokenIdToAddress;
 
   uint8 constant TWELVE_MONTHS = 12;
+  uint8 constant THIRTY_DAYS = 30;
+  uint8 constant rateDecimals = 18;
 
   struct Employee{
     address accountAddress;
@@ -41,15 +43,11 @@ contract Payroll is PayrollInterface, Pausable{
 
   function addFunds() payable public whenNotPaused{}
 
-  function addEmployee(
-    address _accountAddress,
-    address[] _allowedTokens,
-    uint256 _initialYearlyUSDSalary) public
-    whenNotPaused
-    onlyOwner
-    employeeNotExists(_accountAddress)
+  function addEmployee(address _accountAddress,address[] _allowedTokens,uint256 _initialYearlyUSDSalaryCents) public
+   whenNotPaused
+   onlyOwner
+   employeeNotExists(_accountAddress)
     {
-
     Employee memory employee = Employee(
       _accountAddress,
       _allowedTokens,
@@ -65,13 +63,13 @@ contract Payroll is PayrollInterface, Pausable{
     employeeIdToAddress[employeeId] = _accountAddress;
     employeeIdToEmployee[employeeId] = employee;
 
-    setEmployeeSalary(employeeId,_initialYearlyUSDSalary);
+    setEmployeeSalary(employeeId,_initialYearlyUSDSalaryCents);
   }
 
   function setEmployeeSalary(uint256 employeeId, uint256 yearlyUSDSalaryCents) public
-    whenNotPaused
-    onlyOwner
-    employeeExists(employeeId)
+   whenNotPaused
+   onlyOwner
+   employeeExists(employeeId)
     {
     Employee storage employee = employeeIdToEmployee[employeeId];
     salariesSummationUSDCents = salariesSummationUSDCents.sub(employee.yearlyUSDSalaryCents);
@@ -80,9 +78,9 @@ contract Payroll is PayrollInterface, Pausable{
   }
 
   function removeEmployee(uint256 employeeId) public
-    whenNotPaused
-    onlyOwner
-    employeeExists(employeeId){
+   whenNotPaused
+   onlyOwner
+   employeeExists(employeeId){
     Employee memory employee = employeeIdToEmployee[employeeId];
     setEmployeeSalary(employeeId,0);
 
@@ -95,7 +93,10 @@ contract Payroll is PayrollInterface, Pausable{
     employeeIdToEmployee[employeeId] = emptyStruct;
   }
 
-  function addToken(address tokenAddress,uint256 usdRateCents) onlyOwner whenNotPaused tokenNotHandled(tokenAddress){
+  function addToken(address tokenAddress,uint256 usdRateCents)
+   onlyOwner
+   whenNotPaused
+   tokenNotHandled(tokenAddress){
     Token memory token = Token(tokenAddress,usdRateCents);
     tokensHandled.push(token);
 
@@ -104,7 +105,10 @@ contract Payroll is PayrollInterface, Pausable{
     tokenIdToAddress[tokenId] = tokenAddress;
   }
 
-  function removeToken(address tokenAddress) onlyOwner whenNotPaused tokenHandled(tokenAddress){
+  function removeToken(address tokenAddress)
+   onlyOwner
+   whenNotPaused
+   tokenHandled(tokenAddress){
     uint256 tokenId = addressToTokenId[tokenAddress];
     if(tokensHandled.length==1){
       delete tokensHandled[tokenId];
@@ -129,13 +133,16 @@ contract Payroll is PayrollInterface, Pausable{
     oracle = oracleAddress;
   }
 
-  function setExchangeRate(address token,uint256 usdExchangeRate) public whenNotPaused onlyOracle tokenHandled(token){
+  function setExchangeRate(address token,uint256 usdExchangeRateCents) public
+   whenNotPaused
+   onlyOracle
+   tokenHandled(token){
     uint256 tokenId = addressToTokenId[token];
-    tokensHandled[tokenId].usdRateCents = usdExchangeRate;
+    tokensHandled[tokenId].usdRateCents = usdExchangeRateCents;
   }
 
   function setEthExchangeRate(uint256 usdExchangeRateCents) public whenNotPaused onlyOracle {
-    ethUSDRateCents = usdExchangeRateCents;
+    ethUSDRateCents = usdExchangeRateCents /** (10 ** uint256(rateDecimals))*/;
   }
 
   function escapeHatch() public onlyOwner whenNotPaused{
@@ -161,8 +168,27 @@ contract Payroll is PayrollInterface, Pausable{
     return salariesSummationUSDCents.div(TWELVE_MONTHS);
   }
 
-  function calculatePayrollRunway() view public returns (uint256) {
-    //TODO
+  function calculatePayrollRunway() view public thereAreEmployees returns (uint256) {
+    var (totalUSDCents,decimalPlaces) = totalBalanceInUSDCents();
+    uint256 spentUSDCentsPerMonth = salariesSummationUSDCents.div(TWELVE_MONTHS);
+    uint256 spentUSDCentsPerDay = spentUSDCentsPerMonth.div(THIRTY_DAYS);
+
+    return totalUSDCents.div(spentUSDCentsPerDay);
+  }
+
+  function totalBalanceInUSDCents() view public returns(uint256,uint8) {
+    uint256 totalUSDCents = this.balance.mul(ethUSDRateCents); //assumes oracle set eth rate already
+
+    for(uint256 i = 0;i<tokensHandled.length;i++){
+      Token memory token = tokensHandled[i];
+      ERC20Basic tokenContract = ERC20Basic(token.tokenAddress);
+      if(tokenContract.balanceOf(this)>0){
+        uint256 valueInUsdCents =  token.usdRateCents.mul(tokenContract.balanceOf(this));
+        totalUSDCents = totalUSDCents.add(valueInUsdCents);
+      }
+    }
+
+    return (totalUSDCents,rateDecimals);
   }
 
   // public getters
@@ -189,6 +215,10 @@ contract Payroll is PayrollInterface, Pausable{
     return (token.tokenAddress,token.usdRateCents);
   }
 
+  function getEthExchangeRateCents() view public returns (uint256){
+    return ethUSDRateCents;
+  }
+
   function isTokenHandled(address tokenAddress) view public returns(bool){
     uint256 tokenId = addressToTokenId[tokenAddress];
     if(tokensHandled.length==0){
@@ -205,6 +235,11 @@ contract Payroll is PayrollInterface, Pausable{
   }
 
   // modifiers
+  modifier thereAreEmployees(){
+    require(employeeCount>0);
+    _;
+  }
+
   modifier employeeExists(uint256 employeeId){
     Employee storage employee = employeeIdToEmployee[employeeId];
     if(employee.accountAddress==0){

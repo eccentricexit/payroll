@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/mtsalenc/aragon-payroll#readme",
   "dependencies": {
+    "bignumber.js": "^5.0.0",
     "zeppelin-solidity": "1.5.0"
   }
 }
