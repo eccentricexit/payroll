@@ -27,7 +27,7 @@ contract Payroll is PayrollInterface, Pausable{
 
   uint8 constant TWELVE_MONTHS = 12;
   uint8 constant THIRTY_DAYS = 30;
-  uint8 constant rateDecimals = 18;
+  uint8 constant RATE_DECIMALS = 18;
 
   struct Employee{
     address accountAddress;
@@ -142,7 +142,7 @@ contract Payroll is PayrollInterface, Pausable{
   }
 
   function setEthExchangeRate(uint256 usdExchangeRateCents) public whenNotPaused onlyOracle {
-    ethUSDRateCents = usdExchangeRateCents /** (10 ** uint256(rateDecimals))*/;
+    ethUSDRateCents = usdExchangeRateCents /** (10 ** uint256(RATE_DECIMALS))*/;
   }
 
   function escapeHatch() public onlyOwner whenNotPaused{
@@ -173,7 +173,7 @@ contract Payroll is PayrollInterface, Pausable{
     uint256 spentUSDCentsPerMonth = salariesSummationUSDCents.div(TWELVE_MONTHS);
     uint256 spentUSDCentsPerDay = spentUSDCentsPerMonth.div(THIRTY_DAYS);
 
-    return totalUSDCents.div(spentUSDCentsPerDay).div(10**uint256(rateDecimals));
+    return totalUSDCents.div(spentUSDCentsPerDay).div(10**uint256(RATE_DECIMALS));
   }
 
   function totalBalanceInUSDCents() view public returns(uint256,uint8) {
@@ -184,12 +184,12 @@ contract Payroll is PayrollInterface, Pausable{
       ERC20Basic tokenContract = ERC20Basic(token.tokenAddress);
       if(tokenContract.balanceOf(this)>0){
         uint256 tokens = tokenContract.balanceOf(this);
-        uint256 tokensValueInUsdCents = tokens.mul(token.usdRateCents).mul(10**uint(rateDecimals));
+        uint256 tokensValueInUsdCents = tokens.mul(token.usdRateCents).mul(10**uint(RATE_DECIMALS));
         totalUSDCents = totalUSDCents.add(tokensValueInUsdCents);
       }
     }
 
-    return (totalUSDCents,rateDecimals);
+    return (totalUSDCents,RATE_DECIMALS);
   }
 
   // public getters
