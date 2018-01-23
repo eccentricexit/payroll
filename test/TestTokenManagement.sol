@@ -13,7 +13,7 @@ contract TestTokenManagement {
     Payroll payroll = new Payroll();
 
     Assert.equal(payroll.isTokenHandled(testTokenAddress),false,'token should not yet be registered');
-    payroll.addToken(testTokenAddress,testTokenRate);
+    payroll.addToken(testTokenAddress,testTokenRate);    
 
     var (tokenAddressAfterAdd,tokenUsdRateAfterAdd) = payroll.getToken(testTokenAddress);
     Assert.equal(tokenAddressAfterAdd,testTokenAddress,'there should be a token address');

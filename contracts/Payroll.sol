@@ -183,8 +183,9 @@ contract Payroll is PayrollInterface, Pausable{
       Token memory token = tokensHandled[i];
       ERC20Basic tokenContract = ERC20Basic(token.tokenAddress);
       if(tokenContract.balanceOf(this)>0){
-        uint256 valueInUsdCents =  token.usdRateCents.mul(tokenContract.balanceOf(this));
-        totalUSDCents = totalUSDCents.add(valueInUsdCents);
+        uint256 tokens = tokenContract.balanceOf(this);
+        uint256 tokensValueInUsdCents = tokens.mul(token.usdRateCents).mul(10**uint(rateDecimals));
+        totalUSDCents = totalUSDCents.add(tokensValueInUsdCents);        
       }
     }
 

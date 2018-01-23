@@ -1,6 +1,6 @@
-// Specifically request an abstraction for MetaCoin
-var Payroll = artifacts.require("Payroll");
 var BigNumber = require('bignumber.js');
+var Payroll = artifacts.require("Payroll");
+var BasicTokenMock = artifacts.require('./mock/BasicTokenMock.sol');
 
 contract('Payroll', function(accounts) {
   let contractInstance;
@@ -54,14 +54,28 @@ contract('Payroll', function(accounts) {
     await contractInstance.addFunds({from:ownerAddress,to: contractAddress,value: amountInWei});
     await contractInstance.setOracle(oracleAddress);
     await contractInstance.setEthExchangeRate(exchangeRate,{from:oracleAddress}); //1 eth == 1 usd
-    const obj = await contractInstance.totalBalanceInUSDCents();
-    const decimalPlaces = new BigNumber(10).pow(obj[1]);
+    let obj = await contractInstance.totalBalanceInUSDCents();
+    let decimalPlaces = new BigNumber(10).pow(obj[1]);
 
-    const totalBalanceInUSDCents = obj[0].div(decimalPlaces).toNumber();
+    let totalBalanceInUSDCents = obj[0].div(decimalPlaces).toNumber();
     assert.equal(totalBalanceInUSDCents,200,'balance should be 200 cents');
 
     //TODO Add tokens
+    let tokenContractInstance = await BasicTokenMock.new(ownerAddress,5000);
 
+    await contractInstance.addToken(tokenContractInstance.address,100);
+    assert.equal(await contractInstance.isTokenHandled(tokenContractInstance.address),true,'token should be handled');
+
+    const tokensToPayroll = 1;
+    await tokenContractInstance.transfer(contractInstance.address,tokensToPayroll);
+    const contractTokenBalance = await tokenContractInstance.balanceOf(contractInstance.address);
+    assert.equal(contractTokenBalance,tokensToPayroll,'contract should own some tokens');
+
+    obj = await contractInstance.totalBalanceInUSDCents();
+    decimalPlaces = new BigNumber(10).pow(obj[1]);
+
+    totalBalanceInUSDCents = obj[0].div(decimalPlaces).toNumber();
+    assert.equal(totalBalanceInUSDCents,300,'balance should be 300 cents');
   });
 
   it("calculates payroll runway correctly", async function(){
