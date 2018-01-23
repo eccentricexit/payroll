@@ -50,6 +50,7 @@ contract('Payroll', function(accounts) {
     const oracleAddress = accounts[1];
     const exchangeRate = 100; // In cents. 1 usd == 1 eth
     const contractAddress = contractInstance.address;
+    const tokenContractInstance = await BasicTokenMock.new(ownerAddress,5000);
 
     await contractInstance.addFunds({from:ownerAddress,to: contractAddress,value: amountInWei});
     await contractInstance.setOracle(oracleAddress);
@@ -59,9 +60,6 @@ contract('Payroll', function(accounts) {
 
     let totalBalanceInUSDCents = obj[0].div(decimalPlaces).toNumber();
     assert.equal(totalBalanceInUSDCents,200,'balance should be 200 cents');
-
-    //TODO Add tokens
-    let tokenContractInstance = await BasicTokenMock.new(ownerAddress,5000);
 
     await contractInstance.addToken(tokenContractInstance.address,100);
     assert.equal(await contractInstance.isTokenHandled(tokenContractInstance.address),true,'token should be handled');
@@ -79,8 +77,33 @@ contract('Payroll', function(accounts) {
   });
 
   it("calculates payroll runway correctly", async function(){
-    // TODO
+    const amountInWei = web3.toWei(10,"ether");
+    const ownerAddress = accounts[0];
+    const oracleAddress = accounts[1];
+    const employeeAddress = accounts[2];
+    const exchangeRate = 1000000; // In cents. 1 eth == 10000 usd
+    const contractAddress = contractInstance.address;
+    const tokenContractInstance = await BasicTokenMock.new(ownerAddress,100000);
+    const tokensToPayroll = 10000;
 
+    await contractInstance.addFunds({from:ownerAddress,to: contractAddress,value: amountInWei});
+    await contractInstance.setOracle(oracleAddress);
+    await contractInstance.setEthExchangeRate(exchangeRate,{from:oracleAddress}); //1 eth == 1 usd
+    await contractInstance.addToken(tokenContractInstance.address,1000); // In cents. 1 token == 10 usd
+    await contractInstance.addEmployee(employeeAddress,[],20000000);
+    await tokenContractInstance.transfer(contractInstance.address,tokensToPayroll);
+
+    const obj = await contractInstance.totalBalanceInUSDCents();
+    const decimalPlaces = new BigNumber(10).pow(obj[1]);
+    const totalBalanceInUSDCents = obj[0].div(decimalPlaces).toNumber();
+    const salariesSummationUSDCents = await contractInstance.getSalariesSummationUSD();
+
+    //calculation
+    const totalMonthlySpending = salariesSummationUSDCents/12;
+    const totalDailySpending = totalMonthlySpending/30;
+    const numberOfDaysLeft = totalBalanceInUSDCents/totalDailySpending;
+    const numberOfDaysLeftCalculated = (await contractInstance.calculatePayrollRunway()).toNumber();    
+    assert.equal(numberOfDaysLeftCalculated,numberOfDaysLeft,'should have calculated days correctly');
   });
 
 });

@@ -173,7 +173,7 @@ contract Payroll is PayrollInterface, Pausable{
     uint256 spentUSDCentsPerMonth = salariesSummationUSDCents.div(TWELVE_MONTHS);
     uint256 spentUSDCentsPerDay = spentUSDCentsPerMonth.div(THIRTY_DAYS);
 
-    return totalUSDCents.div(spentUSDCentsPerDay);
+    return totalUSDCents.div(spentUSDCentsPerDay).div(10**uint256(rateDecimals));
   }
 
   function totalBalanceInUSDCents() view public returns(uint256,uint8) {
@@ -185,7 +185,7 @@ contract Payroll is PayrollInterface, Pausable{
       if(tokenContract.balanceOf(this)>0){
         uint256 tokens = tokenContract.balanceOf(this);
         uint256 tokensValueInUsdCents = tokens.mul(token.usdRateCents).mul(10**uint(rateDecimals));
-        totalUSDCents = totalUSDCents.add(tokensValueInUsdCents);        
+        totalUSDCents = totalUSDCents.add(tokensValueInUsdCents);
       }
     }
 
