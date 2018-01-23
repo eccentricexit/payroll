@@ -164,6 +164,10 @@ contract Payroll is PayrollInterface, Pausable{
     //TODO
   }
 
+  function determineAllocation(address[] tokens, uint256[] distribution) public onlyEmployee onlyOnceAMonth{
+    //TODO
+  }
+
   function calculatePayrollBurnrate() view public returns (uint256){
     return salariesSummationUSDCents.div(TWELVE_MONTHS);
   }
@@ -290,28 +294,5 @@ contract Payroll is PayrollInterface, Pausable{
     require(block.timestamp>employee.lastPayoutTimestamp.add(THIRTY_DAYS));
     _;
   }
-
-
-  /* OWNER ONLY */
-  //function addEmployee(address accountAddress, address[] allowedTokens, uint256 initialYearlyUSDSalary) public {}
-  //function setEmployeeSalary(uint256 employeeId, uint256 yearlyUSDSalaryCents) public {}
-  //function removeEmployee(uint256 employeeId) public {}
-
-  //function addFunds() payable public{}
-  //function escapeHatch() public {}
-  //function addTokenFunds()? // Use approveAndCall or ERC223 tokenFallback
-
-  //function getEmployeeCount() constant public returns (uint256){}
-  //function getEmployee(uint256 employeeId) constant public returns (address employee){} // Return all important info too
-
-  //function calculatePayrollBurnrate() constant public returns (uint256){} // Monthly usd amount spent in salaries
-  //function calculatePayrollRunway() view public returns (uint256){} // Days until the contract can run out of funds
-
-  /* EMPLOYEE ONLY */
-  function determineAllocation(address[] tokens, uint256[] distribution) public {} // only callable once every 6 months
-  //function payday() public {} // only callable once a month
-
-  /* ORACLE ONLY */
-  // function setExchangeRate(address token, uint256 usdExchangeRate) public {} // uses decimals from token
 
 }
