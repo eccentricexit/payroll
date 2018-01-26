@@ -4,12 +4,6 @@ Growing up as my parents struggled to open businesses in a [country](https://www
 
 I also learned that our voting system is [severely](https://en.wikipedia.org/wiki/Electronic_voting_in_Brazil) flawed and for that reason it's use was made illegal in most first world countries that opted for more auditable but slower solutions. When I noticed that a good voting system has not yet been built I decided build [one](github.com/mtsalenc/ethervoltz) on Ethereum as my graduation project. While it [got published](https://www.linkedin.com/feed/update/urn:li:activity:6348247992734089217) on a local conference, it does not scale. For this reason I am currently researching a solution that uses truebit to run and verify all transactions in a plasma chain and only commit proofs to the mainnet.
 
-### Why do I want to work at aragon?
-
-Building products is hard but working together makes it easier. While working on my projects I also realized I was spending nearly half of my time thinking about how to get organized and how to deal with localized jurisdiction. Aragon can make this much simpler. It is an elegant solution both morally and tecnologically and would allow people to focus more on the product.
-
-I also think aragon would benefit from allowing participants to manage rights of management/read/write to source code on a [mango](https://github.com/axic/mango) like platform.
-
 # Professional Work
 I have one and a half year of professional work as a fulltime developer. I worked on fullstack applications [1], cross-platform mobile applications [2] and native android applications. I work daily with OracleDB and MySql.
 
@@ -22,7 +16,7 @@ I am very curious. Before I became a software developer I had an interest in [3D
 
 From software development and 3d art came [Fiend Fender](https://play.google.com/store/apps/details?id=com.deltabit.fiendfender). A 3d tower defense game built on unity.
 
-[SimpleWallet](https://github.com/mtsalenc/simple-wallet) was my first dapp for the web3. Built with truffle, it's backend is deployed on the rinkeby testnet and it's frontend on angular is deployed on swarm.
+[SimpleWallet](https://github.com/mtsalenc/simple-wallet) Built with truffle, it's backend is deployed on the rinkeby testnet and it's frontend on angular is deployed on swarm.
 
 # Academic work
 I hold a Udacity Nanodegree in android development and built [serveral](https://github.com/mtsalenc/popular-movies) [applications](https://github.com/mtsalenc/comperio) during my course. The most relevant are on my github.
