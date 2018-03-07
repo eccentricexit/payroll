@@ -23,14 +23,4 @@ I hold a Udacity Nanodegree in android development and built [serveral](https://
 
 I will finish my BEng. Computer in May this year. It is a sandwich diploma because I received a scholarship to study abroad for one year at BME University in Budapest.
 
-# Notes on my application
-While researching, I came across [this](https://pastebin.com/bSuVDswu). It helped me understand what each function is supposed to do but I left empty what I didn't understand well. If you think there is a possibility I am a good match for the position and would like to see more code, I would gladly fill them.
 
-Application:
-`git clone https://github.com/mtsalenc/aragon-payroll.git`
-
-Thank you for your time and consideration.
-
-https://mtsalenc.github.io/
-
-Matheus Faria de Alencar
