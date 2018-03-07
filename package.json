@@ -1,5 +1,5 @@
 {
-  "name": "aragon-payroll",
+  "name": "payroll",
   "version": "1.0.0",
   "description": "",
   "main": "truffle.js",
@@ -11,15 +11,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mtsalenc/aragon-payroll.git"
+    "url": "git+https://github.com/mtsalenc/payroll.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/mtsalenc/aragon-payroll/issues"
+    "url": "https://github.com/mtsalenc/payroll/issues"
   },
-  "homepage": "https://github.com/mtsalenc/aragon-payroll#readme",
+  "homepage": "https://github.com/mtsalenc/payroll#readme",
   "dependencies": {
     "bignumber.js": "^5.0.0",
     "zeppelin-solidity": "1.5.0"
