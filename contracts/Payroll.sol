@@ -15,7 +15,6 @@ contract Payroll is PayrollInterface, Pausable{
   mapping(address=>uint) addressToEmployeeId;
   mapping(uint=>address) employeeIdToAddress;
   mapping(uint=>Employee) employeeIdToEmployee;
-  mapping(address=>mapping(address=>bool)) allowedTokensEmployee;
 
   uint256 lastEmployeeId;
   uint256 employeeCount;
@@ -36,6 +35,9 @@ contract Payroll is PayrollInterface, Pausable{
     address[] allowedTokens;
     uint256 yearlyUSDSalaryCents;
     uint256 lastPayoutTimestamp;
+
+    address[] tokenAllocated;
+    uint256[] tokenAllocation;
   }
 
   struct Token{
@@ -56,12 +58,16 @@ contract Payroll is PayrollInterface, Pausable{
    belowTokenNumberLimit(_allowedTokens)
    employeeNotExists(_accountAddress)
    tokensAreHandled(_allowedTokens)
-    {
+  {
+    address[] memory emptyAddrArr;
+    uint256[] memory emptyIntArr;
     Employee memory employee = Employee(
       _accountAddress,
       _allowedTokens,
       0,
-      block.timestamp //assuming employee will be allowed to call function 30 days from now
+      0, //assuming employee will be allowed to collect his first payout immediately
+      emptyAddrArr,
+      emptyIntArr
     );
 
     lastEmployeeId++;
@@ -71,10 +77,6 @@ contract Payroll is PayrollInterface, Pausable{
     addressToEmployeeId[_accountAddress] = employeeId;
     employeeIdToAddress[employeeId] = _accountAddress;
     employeeIdToEmployee[employeeId] = employee;
-
-    for(uint8 i=0;i<_allowedTokens.length;i++){
-      allowedTokensEmployee[msg.sender][_allowedTokens[i]] = true;
-    }
 
     setEmployeeSalary(employeeId,_initialYearlyUSDSalaryCents);
   }
@@ -102,7 +104,8 @@ contract Payroll is PayrollInterface, Pausable{
     employeeIdToAddress[employeeId] = 0;
 
     address[] memory emptyArr;
-    Employee memory emptyStruct = Employee(0,emptyArr,0,0);
+    uint256[] memory emptyIntArr;
+    Employee memory emptyStruct = Employee(0,emptyArr,0,0,emptyArr,emptyIntArr);
     employeeIdToEmployee[employeeId] = emptyStruct;
   }
 
@@ -183,11 +186,24 @@ contract Payroll is PayrollInterface, Pausable{
     tokensAreHandled(_tokens)
     belowTokenNumberLimit(_tokens)
   {
-    Employee memory employee = employeeIdToEmployee[addressToEmployeeId[msg.sender]];
-    for(uint8 i = 0;i<=_tokens.length;i++){
-      require(allowedTokensEmployee[msg.sender][_tokens[i]]);
+    require(_tokens.length == _distribution.length);
+
+    Employee storage employee = employeeIdToEmployee[addressToEmployeeId[msg.sender]];
+    uint256 allocationSummation = 0;
+    for(uint8 i = 0;i<_tokens.length;i++){      
+      allocationSummation = allocationSummation.add(_distribution[i]);
     }
-    //TODO
+    require(allocationSummation <= 100); //remainder will be paid in eth
+
+    for(i = 0;i<_tokens.length;i++){
+      if(employee.tokenAllocation.length<i+1){
+        employee.tokenAllocation.length += 1;
+        employee.tokenAllocated.length += 1;
+      }
+      employee.tokenAllocated[i]=_tokens[i];
+      employee.tokenAllocation[i]=_distribution[i];
+    }
+
   }
 
   function calculatePayrollBurnrate() view public returns (uint256){

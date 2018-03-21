@@ -120,7 +120,8 @@ contract('Payroll', function (accounts) {
         tokenContractB.address
       ], new BigNumber(10000000)
     )
-    
+
+    await contractInstance.determineAllocation([tokenContractA.address,tokenContractC.address],[40,50],{from:accounts[2]})
 
   })
 })
