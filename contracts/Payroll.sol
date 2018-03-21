@@ -26,7 +26,7 @@ contract Payroll is PayrollInterface, Pausable{
   mapping(address=>uint) addressToTokenId;
   mapping(uint=>address) tokenIdToAddress;
 
-  uint8 tokensHandledLimit = 12;
+  uint8 tokensHandledLimit = 20;
   uint8 constant TWELVE_MONTHS = 12;
   uint8 constant THIRTY_DAYS = 30;
   uint8 constant RATE_DECIMALS = 18;
@@ -236,7 +236,9 @@ contract Payroll is PayrollInterface, Pausable{
     return salariesSummationUSDCents;
   }
 
-  function getToken(address tokenAddress) view public /*tokenHandled(tokenAddress)*/ returns (address,uint256) {
+  function getToken(address tokenAddress) view public
+    tokenHandled(tokenAddress) returns (address,uint256)
+  {
     uint256 tokenId = addressToTokenId[tokenAddress];
     Token memory token = tokensHandled[tokenId];
     return (token.tokenAddress,token.usdRateCents);
