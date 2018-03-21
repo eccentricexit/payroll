@@ -1,3 +1,4 @@
+pragma solidity ^0.4.4;
 import "truffle/Assert.sol";
 import "truffle/DeployedAddresses.sol";
 import "../contracts/Payroll.sol";
@@ -6,14 +7,14 @@ import "zeppelin-solidity/contracts/mocks/BasicTokenMock.sol";
 
 contract TestTokenManagement {
   using SafeMath for uint256;
+  address testTokenAddress = 0x0F4F2Ac550A1b4e2280d04c21cEa7EBD822934b5;
 
-  function testAddToken(){
-    address testTokenAddress = 0x0f4f2ac550a1b4e2280d04c21cea7ebd822934b5;
+  function testAddToken() public{
     uint256 testTokenRate = 12;
     Payroll payroll = new Payroll();
 
     Assert.equal(payroll.isTokenHandled(testTokenAddress),false,'token should not yet be registered');
-    payroll.addToken(testTokenAddress,testTokenRate);    
+    payroll.addToken(testTokenAddress,testTokenRate);
 
     var (tokenAddressAfterAdd,tokenUsdRateAfterAdd) = payroll.getToken(testTokenAddress);
     Assert.equal(tokenAddressAfterAdd,testTokenAddress,'there should be a token address');
@@ -21,8 +22,7 @@ contract TestTokenManagement {
     Assert.equal(payroll.isTokenHandled(testTokenAddress),true,'token should be registered');
   }
 
-  function testRemoveToken(){
-    address testTokenAddress = 0x0f4f2ac550a1b4e2280d04c21cea7ebd822934b5;
+  function testRemoveToken() public{
     uint256 testTokenRate = 12;
     Payroll payroll = new Payroll();
     payroll.addToken(testTokenAddress,testTokenRate);

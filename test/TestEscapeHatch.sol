@@ -1,3 +1,4 @@
+pragma solidity ^0.4.4;
 import "truffle/Assert.sol";
 import "truffle/DeployedAddresses.sol";
 import "../contracts/Payroll.sol";
@@ -7,7 +8,7 @@ import "zeppelin-solidity/contracts/mocks/BasicTokenMock.sol";
 contract TestEscapeHatch {
   using SafeMath for uint256;
 
-  function testEscapeHatchPausesContract(){
+  function testEscapeHatchPausesContract() public{
     Payroll payroll = new Payroll();
     Assert.equal(payroll.paused(),false,'contract should not be paused');
 
@@ -16,7 +17,7 @@ contract TestEscapeHatch {
     Assert.equal(payroll.paused(),true,'contract should be paused');
   }
 
-  function testRescueTokensOnEscape(){
+  function testRescueTokensOnEscape() public{
     uint256 initialSupply = 2000000;
     Payroll payroll = new Payroll();
     BasicTokenMock testToken = new BasicTokenMock(this,initialSupply);

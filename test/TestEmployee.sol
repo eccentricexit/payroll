@@ -1,3 +1,4 @@
+pragma solidity ^0.4.4;
 import "truffle/Assert.sol";
 import "truffle/DeployedAddresses.sol";
 import "../contracts/Payroll.sol";
@@ -7,11 +8,11 @@ import "zeppelin-solidity/contracts/mocks/BasicTokenMock.sol";
 contract TestEmployee {
   using SafeMath for uint256;
 
-  address constant employeeTestAddress1 = 0xc5fdf4076b8f3a5357c5e395ab970b5b54098fef;
+  address constant employeeTestAddress1 = 0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef;
   uint256 constant yearlyUSDSalaryCentsTest1 = 120000;
-  address[] allowedTokensTest1 = [0x2932b7a2355d6fecc4b5c0b6bd44cc31df247a2e];
+  address[] allowedTokensTest1 = [0x2932b7A2355D6fecc4b5c0B6BD44cC31df247a2e];
 
-  function testAddEmployee() {
+  function testAddEmployee() public{
     Payroll payroll = new Payroll();
 
     uint256 employeeCountBefore = payroll.getEmployeeCount();

@@ -93,7 +93,7 @@ contract Payroll is PayrollInterface, Pausable{
     employeeIdToEmployee[employeeId] = emptyStruct;
   }
 
-  function addToken(address tokenAddress,uint256 usdRateCents)
+  function addToken(address tokenAddress,uint256 usdRateCents) public
    onlyOwner
    whenNotPaused
    tokenNotHandled(tokenAddress){
@@ -105,7 +105,7 @@ contract Payroll is PayrollInterface, Pausable{
     tokenIdToAddress[tokenId] = tokenAddress;
   }
 
-  function removeToken(address tokenAddress)
+  function removeToken(address tokenAddress) public
    onlyOwner
    whenNotPaused
    tokenHandled(tokenAddress){
@@ -129,7 +129,7 @@ contract Payroll is PayrollInterface, Pausable{
     addressToTokenId[tokenAddress] = 0;
   }
 
-  function setOracle(address oracleAddress) onlyOwner whenNotPaused{
+  function setOracle(address oracleAddress) public onlyOwner whenNotPaused{
     oracle = oracleAddress;
   }
 
@@ -288,10 +288,10 @@ contract Payroll is PayrollInterface, Pausable{
   }
 
   modifier onlyOnceAMonth(){
-    uint256 THIRTY_DAYS = 30 * 86400;
+    uint256 THIRTY_DAYS_IN_SECONDS = 30 * 86400;
     uint256 employeeId = addressToEmployeeId[msg.sender];
     Employee memory employee = employeeIdToEmployee[employeeId];
-    require(block.timestamp>employee.lastPayoutTimestamp.add(THIRTY_DAYS));
+    require(block.timestamp>employee.lastPayoutTimestamp.add(THIRTY_DAYS_IN_SECONDS));
     _;
   }
 
