@@ -15,6 +15,7 @@ contract Payroll is PayrollInterface, Pausable{
   mapping(address=>uint) addressToEmployeeId;
   mapping(uint=>address) employeeIdToAddress;
   mapping(uint=>Employee) employeeIdToEmployee;
+  mapping(address=>mapping(address=>bool)) allowedTokensEmployee;
 
   uint256 lastEmployeeId;
   uint256 employeeCount;
@@ -25,6 +26,7 @@ contract Payroll is PayrollInterface, Pausable{
   mapping(address=>uint) addressToTokenId;
   mapping(uint=>address) tokenIdToAddress;
 
+  uint8 tokensHandledLimit = 12;
   uint8 constant TWELVE_MONTHS = 12;
   uint8 constant THIRTY_DAYS = 30;
   uint8 constant RATE_DECIMALS = 18;
@@ -41,12 +43,19 @@ contract Payroll is PayrollInterface, Pausable{
     uint256 usdRateCents;
   }
 
+  function setTokensHandledLimit(uint8 _tokensHandledLimit) public onlyOwner whenNotPaused{
+    require(tokensHandled.length < _tokensHandledLimit);
+    tokensHandledLimit = _tokensHandledLimit;
+  }
+
   function addFunds() payable public whenNotPaused{}
 
   function addEmployee(address _accountAddress,address[] _allowedTokens,uint256 _initialYearlyUSDSalaryCents) public
    whenNotPaused
    onlyOwner
+   belowTokenNumberLimit(_allowedTokens)
    employeeNotExists(_accountAddress)
+   tokensAreHandled(_allowedTokens)
     {
     Employee memory employee = Employee(
       _accountAddress,
@@ -62,6 +71,10 @@ contract Payroll is PayrollInterface, Pausable{
     addressToEmployeeId[_accountAddress] = employeeId;
     employeeIdToAddress[employeeId] = _accountAddress;
     employeeIdToEmployee[employeeId] = employee;
+
+    for(uint8 i=0;i<_allowedTokens.length;i++){
+      allowedTokensEmployee[msg.sender][_allowedTokens[i]] = true;
+    }
 
     setEmployeeSalary(employeeId,_initialYearlyUSDSalaryCents);
   }
@@ -164,7 +177,16 @@ contract Payroll is PayrollInterface, Pausable{
     //TODO
   }
 
-  function determineAllocation(address[] tokens, uint256[] distribution) public onlyEmployee onlyOnceAMonth{
+  function determineAllocation(address[] _tokens, uint256[] _distribution) public
+    onlyEmployee
+    onlyOnceAMonth
+    tokensAreHandled(_tokens)
+    belowTokenNumberLimit(_tokens)
+  {
+    Employee memory employee = employeeIdToEmployee[addressToEmployeeId[msg.sender]];
+    for(uint8 i = 0;i<=_tokens.length;i++){
+      require(allowedTokensEmployee[msg.sender][_tokens[i]]);
+    }
     //TODO
   }
 
@@ -266,18 +288,33 @@ contract Payroll is PayrollInterface, Pausable{
     _;
   }
 
-  modifier tokenNotHandled(address tokenAddress){
+  modifier tokenNotHandled(address _tokenAddress){
     if(tokensHandled.length!=0){
-      uint256 tokenId = addressToTokenId[tokenAddress];
+      uint256 tokenId = addressToTokenId[_tokenAddress];
       Token memory token = tokensHandled[tokenId];
-      require(token.tokenAddress!=tokenAddress);
+      require(token.tokenAddress!=_tokenAddress);
     }
     _;
   }
 
-  modifier tokenHandled(address tokenAddress){
+  modifier tokenHandled(address _tokenAddress){
     require(tokensHandled.length>0);
-    require(isTokenHandled(tokenAddress));
+    require(isTokenHandled(_tokenAddress));
+    _;
+  }
+
+  modifier tokensAreHandled(address[] _tokenAddresses){
+    require(tokensHandled.length>0);
+    require(_tokenAddresses.length<=tokensHandled.length);
+    require(_tokenAddresses.length<=tokensHandledLimit);
+    for(uint8 i = 0;i<_tokenAddresses.length;i++){
+      require(isTokenHandled(_tokenAddresses[i]));
+    }
+    _;
+  }
+
+  modifier belowTokenNumberLimit(address[] tokenAddresses){
+    require(tokenAddresses.length <= tokensHandledLimit);
     _;
   }
 

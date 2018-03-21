@@ -18,6 +18,7 @@ contract TestEmployee {
     uint256 employeeCountBefore = payroll.getEmployeeCount();
     uint256 salariesSummationBefore = payroll.getSalariesSummationUSD();
 
+    payroll.addToken(allowedTokensTest1[0],100);
     payroll.addEmployee(employeeTestAddress1,allowedTokensTest1,yearlyUSDSalaryCentsTest1);
 
     uint256 employeeCountAfter = payroll.getEmployeeCount();
@@ -33,8 +34,10 @@ contract TestEmployee {
     Assert.equal(yearlyUSDSalaryCents,yearlyUSDSalaryCentsTest1,'salary should be equal');
   }
 
-  function testRemoveEmployee(){
+  function testRemoveEmployee() public{
     Payroll payroll = new Payroll();
+    payroll.addToken(allowedTokensTest1[0],100);
+
     payroll.addEmployee(employeeTestAddress1,allowedTokensTest1,yearlyUSDSalaryCentsTest1);
 
     uint256 employeeCountBefore = payroll.getEmployeeCount();
