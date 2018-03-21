@@ -1,6 +1,6 @@
-var BigNumber = require('bignumber.js')
-var Payroll = artifacts.require('Payroll')
-var BasicTokenMock = artifacts.require('./mock/BasicTokenMock.sol')
+const BigNumber = require('bignumber.js')
+const Payroll = artifacts.require('Payroll')
+const BasicTokenMock = artifacts.require('./mock/BasicTokenMock.sol')
 
 contract('Payroll', function (accounts) {
   let contractInstance
