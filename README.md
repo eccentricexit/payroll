@@ -1,3 +1,12 @@
+# Payroll Challenge
+This is the implementation of the `PayrollInterface.sol` for Aragon.
+
+# Local deployment and running tests
+Just:
+
+1. `npm install`
+2. `truffle test`
+
 # About me
 
 Growing up as my parents struggled to open businesses in a [country](https://www.fraserinstitute.org/economic-freedom/map?geozone=world&page=map&year=2015&countries=BRA) with harsh restrictions on entrepreneurship taught me how valuable and rare freedom is. As I dived into the study of economics and solutions to world problems that did not require state coercion, I learned that there is a sea of entrepreneurs, specially in poverty ridden areas, with an enormous drive to build new things that simply give up once they learn about barriers imposed on them.
