@@ -19,7 +19,7 @@ contract Payroll is PayrollInterface, Pausable{
   uint256 lastEmployeeId;
   uint256 employeeCount;
   uint256 salariesSummationUSDCents;
-  uint256 ethUSDRateCents;
+  uint256 weiUSDRateCents;
 
   Token[] tokensHandled;
   mapping(address=>uint) addressToTokenId;
@@ -157,8 +157,8 @@ contract Payroll is PayrollInterface, Pausable{
     tokensHandled[tokenId].usdRateCents = usdExchangeRateCents;
   }
 
-  function setEthExchangeRate(uint256 usdExchangeRateCents) public whenNotPaused onlyOracle {
-    ethUSDRateCents = usdExchangeRateCents /** (10 ** uint256(RATE_DECIMALS))*/;
+  function setWeiExchangeRate(uint256 usdExchangeRateCents) public whenNotPaused onlyOracle {
+    weiUSDRateCents = usdExchangeRateCents;
   }
 
   function escapeHatch() public onlyOwner whenNotPaused{
@@ -176,8 +176,25 @@ contract Payroll is PayrollInterface, Pausable{
 
   }
 
-  function payday() public onlyEmployee onlyOnceAMonth{
-    //TODO
+  function payday() public onlyEmployee onlyOnceAMonth whenNotPaused{
+    //WIP
+
+    uint256 employeeId = getEmployeeId(msg.sender);
+    Employee employee = employeeIdToEmployee[employeeId];
+    uint256 monthlyUsdCents = employee.yearlyUSDSalaryCents.div(TWELVE_MONTHS);
+
+    uint256 remainingAllocation = 100; //percentage
+    /* for(uint8 i=0;i<employee.tokenAllocation.length;i++){
+      remainingAllocation = remainingAllocation.sub(employee.tokenAllocation[i]);
+
+      uint256 usdCentsForToken = monthlyUsdCents.div(employee.tokenAllocation[i]);
+      usdCentsForToken = usdCentsForToken.mul(100);
+    } */
+
+    uint256 amountInWei = monthlyUsdCents.mul(weiUSDRateCents);
+    amountInWei = amountInWei.div(remainingAllocation);
+    amountInWei = amountInWei.mul(100);
+    msg.sender.send(amountInWei);
   }
 
   function determineAllocation(address[] _tokens, uint256[] _distribution) public
@@ -190,7 +207,7 @@ contract Payroll is PayrollInterface, Pausable{
 
     Employee storage employee = employeeIdToEmployee[addressToEmployeeId[msg.sender]];
     uint256 allocationSummation = 0;
-    for(uint8 i = 0;i<_tokens.length;i++){      
+    for(uint8 i = 0;i<_tokens.length;i++){
       allocationSummation = allocationSummation.add(_distribution[i]);
     }
     require(allocationSummation <= 100); //remainder will be paid in eth
@@ -219,7 +236,7 @@ contract Payroll is PayrollInterface, Pausable{
   }
 
   function totalBalanceInUSDCents() view public returns(uint256,uint8) {
-    uint256 totalUSDCents = this.balance.mul(ethUSDRateCents); //assumes oracle set eth rate already
+    uint256 totalUSDCents = this.balance.mul(weiUSDRateCents); //assumes oracle set eth rate already
 
     for(uint256 i = 0;i<tokensHandled.length;i++){
       Token memory token = tokensHandled[i];
@@ -261,7 +278,7 @@ contract Payroll is PayrollInterface, Pausable{
   }
 
   function getEthExchangeRateCents() view public returns (uint256){
-    return ethUSDRateCents;
+    return weiUSDRateCents;
   }
 
   function isTokenHandled(address tokenAddress) view public returns(bool){

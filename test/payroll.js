@@ -37,7 +37,7 @@ contract('Payroll', function (accounts) {
 
     await contractInstance.addFunds({from: ownerAddress, to: contractAddress, value: amountInWei})
     await contractInstance.setOracle(oracleAddress)
-    await contractInstance.setEthExchangeRate(exchangeRate, {from: oracleAddress}) // 1 eth == 1 usd
+    await contractInstance.setWeiExchangeRate(exchangeRate, {from: oracleAddress}) // 1 eth == 1 usd
     const ethExchangeRate = await contractInstance.getEthExchangeRateCents()
 
     assert.equal(ethExchangeRate, exchangeRate, 'exchange rate should be ' + exchangeRate)
@@ -53,7 +53,7 @@ contract('Payroll', function (accounts) {
 
     await contractInstance.addFunds({from: ownerAddress, to: contractAddress, value: amountInWei})
     await contractInstance.setOracle(oracleAddress)
-    await contractInstance.setEthExchangeRate(exchangeRate, {from: oracleAddress}) // 1 eth == 1 usd
+    await contractInstance.setWeiExchangeRate(exchangeRate, {from: oracleAddress}) // 1 eth == 1 usd
     let obj = await contractInstance.totalBalanceInUSDCents()
     let decimalPlaces = new BigNumber(10).pow(obj[1])
 
@@ -87,7 +87,7 @@ contract('Payroll', function (accounts) {
 
     await contractInstance.addFunds({from: ownerAddress, to: contractAddress, value: amountInWei})
     await contractInstance.setOracle(oracleAddress)
-    await contractInstance.setEthExchangeRate(exchangeRate, {from: oracleAddress}) // 1 eth == 1 usd
+    await contractInstance.setWeiExchangeRate(exchangeRate, {from: oracleAddress}) // 1 eth == 1 usd
     await contractInstance.addToken(tokenContractInstance.address, 1000) // In cents. 1 token == 10 usd
     await contractInstance.addEmployee(employeeAddress, [], 20000000)
     await tokenContractInstance.transfer(contractInstance.address, tokensToPayroll)
@@ -122,6 +122,59 @@ contract('Payroll', function (accounts) {
     )
 
     await contractInstance.determineAllocation([tokenContractA.address,tokenContractC.address],[40,50],{from:accounts[2]})
+  })
+
+  it('should allow employee to be paid', async function(){
+    const tokenContractA = await BasicTokenMock.new(accounts[0], new BigNumber(100000000))
+    const tokenContractB = await BasicTokenMock.new(accounts[0], new BigNumber(100000000))
+    const tokenContractC = await BasicTokenMock.new(accounts[0], new BigNumber(100000000))
+
+    const payrollInitialTokenABalance = await tokenContractA.balanceOf(contractInstance.address)
+    assert.equal(payrollInitialTokenABalance,0,'contract should not own tokens yet')
+
+    await tokenContractA.transfer(contractInstance.address,100000)
+    await tokenContractB.transfer(contractInstance.address,2000000)
+    await tokenContractC.transfer(contractInstance.address,50000)
+
+    const payrollTokenABalance = (await tokenContractA.balanceOf(contractInstance.address)).toNumber()
+    assert.equal(payrollTokenABalance,100000,'contract should own tokens')
+
+    await contractInstance.addToken(tokenContractA.address,1)
+    await contractInstance.addToken(tokenContractB.address,1)
+    await contractInstance.addToken(tokenContractC.address,1)
+
+    await contractInstance.addEmployee(accounts[2],
+      [
+        tokenContractA.address,
+        tokenContractB.address
+      ], new BigNumber('10000000') //in cents
+    )
+
+    await contractInstance.setOracle(accounts[3]);
+    await contractInstance.setWeiExchangeRate(new BigNumber('1000000000000000'), {from: accounts[3]}); //1 dollar == 1 ether
+
+    await contractInstance.determineAllocation([
+      tokenContractA.address,
+      tokenContractC.address
+    ],[40,50],{from:accounts[2]})
+
+    const employeeTokenABalanceBefore = (await tokenContractA.balanceOf(accounts[2])).toNumber()
+    const employeeTokenCBalanceBefore = (await tokenContractC.balanceOf(accounts[2])).toNumber()
+    const employeeEtherBalanceBefore = await web3.eth.getBalance(accounts[2]).toNumber()
+
+    assert.equal(employeeTokenABalanceBefore,0,'employee should not have A tokens')
+    assert.equal(employeeTokenCBalanceBefore,0,'employee should not have C tokens')
+
+    await contractInstance.payday({from:accounts[2]})
+
+    const employeeTokenABalanceAfter = (await tokenContractA.balanceOf(accounts[2])).toNumber()
+    const employeeTokenCBalanceAfter = (await tokenContractC.balanceOf(accounts[2])).toNumber()
+    const employeeEtherBalanceAfter = await web3.eth.getBalance(accounts[2]).toNumber()
+
+    //assert.isAbove(employeeTokenABalanceAfter,employeeTokenABalanceBefore,'employee should have received A tokens')
+    //assert.isAbove(employeeTokenCBalanceAfter,employeeTokenCBalanceBefore,'employee should have received C tokens')
+    assert.isAbove(employeeEtherBalanceBefore,employeeEtherBalanceAfter,'employee should have received ether')
 
   })
+
 })
